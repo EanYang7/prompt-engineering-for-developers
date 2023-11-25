@@ -1,0 +1,1585 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="面向开发者的 LLM 入门教程，吴恩达大模型系列课程中文版">
+      
+      
+        <meta name="author" content="Ean Yang">
+      
+      
+        <link rel="canonical" href="https://eanyang7.github.io/prompt-engineering-for-developers/01-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/3.%20%E8%BF%AD%E4%BB%A3%E4%BC%98%E5%8C%96%20Iterative/">
+      
+      
+        <link rel="prev" href="../2.%20%E6%8F%90%E7%A4%BA%E5%8E%9F%E5%88%99%20Guidelines/">
+      
+      
+        <link rel="next" href="../4.%20%E6%96%87%E6%9C%AC%E6%A6%82%E6%8B%AC%20Summarizing/">
+      
+      
+      <link rel="icon" href="../../assets/favicon.jpg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.12">
+    
+    
+      
+        <title>第三章 迭代优化 - 面向开发者的 LLM 入门教程</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-header__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            面向开发者的 LLM 入门教程
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第三章 迭代优化
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple"  aria-label="切换为暗黑模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换为暗黑模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="red"  aria-label="切换为浅色模式"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="切换为浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-nav__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    面向开发者的 LLM 入门教程
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    面向开发者的 LLM 入门课程
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%89%8D%E8%A8%80/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    前言
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    环境配置
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    01 面向开发者的提示工程
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            01 面向开发者的提示工程
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第一章 简介
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.%20%E6%8F%90%E7%A4%BA%E5%8E%9F%E5%88%99%20Guidelines/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第二章 提示原则
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    第三章 迭代优化
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    第三章 迭代优化
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、从产品说明书生成营销产品描述
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、从产品说明书生成营销产品描述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 初始提示
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 提示优化1: 解决生成文本太长
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 提示优化2: 处理抓错文本细节
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 提示优化3: 添加表格描述
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、总结
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、英文版
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.%20%E6%96%87%E6%9C%AC%E6%A6%82%E6%8B%AC%20Summarizing/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第四章 文本概括
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5.%20%E6%8E%A8%E6%96%AD%20Inferring/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第五章 推断
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6.%20%E6%96%87%E6%9C%AC%E8%BD%AC%E6%8D%A2%20Transforming/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第六章 文本转换
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7.%20%E6%96%87%E6%9C%AC%E6%89%A9%E5%B1%95%20Expanding/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第七章 文本扩展
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8.%20%E8%81%8A%E5%A4%A9%E6%9C%BA%E5%99%A8%E4%BA%BA%20Chatbot/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第八章 聊天机器人
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../9.%20%E6%80%BB%E7%BB%93%20Summary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第九章 总结
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../readme/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第一部分 面向开发者的提示工程
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../02-%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%20ChatGPT%20%E7%9A%84%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    02 搭建基于 ChatGPT 的问答系统
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../03-%E4%BD%BF%E7%94%A8%20LangChain%20%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    03 使用 LangChain 开发应用程序
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../04-%E4%BD%BF%E7%94%A8%20LangChain%20%E8%AE%BF%E9%97%AE%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    04 使用 LangChain 访问个人数据
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、从产品说明书生成营销产品描述
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、从产品说明书生成营销产品描述">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 初始提示
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 提示优化1: 解决生成文本太长
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 提示优化2: 处理抓错文本细节
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 提示优化3: 添加表格描述
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、总结
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、英文版
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/01-面向开发者的提示工程/3. 迭代优化 Iterative.md" title="编辑此页" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/01-面向开发者的提示工程/3. 迭代优化 Iterative.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/></svg>
+    </a>
+  
+
+
+<h1 id="_1">第三章 迭代优化<a class="headerlink" href="#_1" title="Permanent link">⚓︎</a></h1>
+<p>在开发大语言模型应用时，很难通过第一次尝试就得到完美适用的 Prompt。但关键是要有一个<strong>良好的迭代优化过程</strong>，以不断改进 Prompt。相比训练机器学习模型，Prompt 的一次成功率可能更高，但仍需要通过多次迭代找到最适合应用的形式。</p>
+<p>本章以产品说明书生成营销文案为例，展示 Prompt 迭代优化的思路。这与吴恩达在机器学习课程中演示的机器学习模型开发流程相似：有了想法后，编写代码、获取数据、训练模型、查看结果。通过分析错误找出适用领域，调整方案后再次训练。Prompt 开发也采用类似循环迭代的方式，逐步逼近最优。具体来说，有了任务想法后，可以先编写初版 Prompt，注意清晰明确并给模型充足思考时间。运行后检查结果，如果不理想，则分析 Prompt 不够清楚或思考时间不够等原因，做出改进，再次运行。如此循环多次，终将找到适合应用的 Prompt。</p>
+<p><img alt="1" src="../../figures/C1/Iterative-Prompt-Develelopment.png" /></p>
+<div align=center>图 1.3 Prompt 迭代优化流程 </div>
+
+<p>总之，很难有适用于世间万物的所谓“最佳 Prompt ”，开发高效 Prompt 的关键在于找到一个好的迭代优化过程，而非一开始就要求完美。通过快速试错迭代，可有效确定符合特定应用的最佳 Prompt 形式。</p>
+<h2 id="_2">一、从产品说明书生成营销产品描述<a class="headerlink" href="#_2" title="Permanent link">⚓︎</a></h2>
+<p>给定一份椅子的资料页。描述说它属于<em>中世纪灵感</em>系列，产自意大利，并介绍了材料、构造、尺寸、可选配件等参数。假设您想要使用这份说明书帮助营销团队为电商平台撰写营销描述稿：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 示例：产品说明书</span>
+<span class="n">fact_sheet_chair</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">概述</span>
+
+<span class="s2">    美丽的中世纪风格办公家具系列的一部分，包括文件柜、办公桌、书柜、会议桌等。</span>
+<span class="s2">    多种外壳颜色和底座涂层可选。</span>
+<span class="s2">    可选塑料前后靠背装饰（SWC-100）或10种面料和6种皮革的全面装饰（SWC-110）。</span>
+<span class="s2">    底座涂层选项为：不锈钢、哑光黑色、光泽白色或铬。</span>
+<span class="s2">    椅子可带或不带扶手。</span>
+<span class="s2">    适用于家庭或商业场所。</span>
+<span class="s2">    符合合同使用资格。</span>
+
+<span class="s2">结构</span>
+
+<span class="s2">    五个轮子的塑料涂层铝底座。</span>
+<span class="s2">    气动椅子调节，方便升降。</span>
+
+<span class="s2">尺寸</span>
+
+<span class="s2">    宽度53厘米|20.87英寸</span>
+<span class="s2">    深度51厘米|20.08英寸</span>
+<span class="s2">    高度80厘米|31.50英寸</span>
+<span class="s2">    座椅高度44厘米|17.32英寸</span>
+<span class="s2">    座椅深度41厘米|16.14英寸</span>
+
+<span class="s2">选项</span>
+
+<span class="s2">    软地板或硬地板滚轮选项。</span>
+<span class="s2">    两种座椅泡沫密度可选：中等（1.8磅/立方英尺）或高（2.8磅/立方英尺）。</span>
+<span class="s2">    无扶手或8个位置PU扶手。</span>
+
+<span class="s2">材料</span>
+<span class="s2">外壳底座滑动件</span>
+
+<span class="s2">    改性尼龙PA6/PA66涂层的铸铝。</span>
+<span class="s2">    外壳厚度：10毫米。</span>
+<span class="s2">    座椅</span>
+<span class="s2">    HD36泡沫</span>
+
+<span class="s2">原产国</span>
+
+<span class="s2">    意大利</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<h3 id="11">1.1 初始提示<a class="headerlink" href="#11" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">tool</span> <span class="kn">import</span> <span class="n">get_completion</span>
+
+<span class="c1"># Prompt ：基于说明书创建营销描述</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">您的任务是帮助营销团队基于技术说明书创建一个产品的营销描述。</span>
+
+<span class="s2">根据```标记的技术说明书中提供的信息，编写一个产品描述。</span>
+
+<span class="s2">技术说明: ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>产品描述：
+
+我们自豪地推出美丽的中世纪风格办公家具系列，其中包括文件柜、办公桌、书柜、会议桌等。我们的产品采用多种外壳颜色和底座涂层，以满足您的个性化需求。您可以选择塑料前后靠背装饰（SWC-100）或10种面料和6种皮革的全面装饰（SWC-110），以使您的办公室更加舒适和时尚。
+
+我们的底座涂层选项包括不锈钢、哑光黑色、光泽白色或铬，以满足您的不同需求。椅子可带或不带扶手，适用于家庭或商业场所。我们的产品符合合同使用资格，为您提供更加可靠的保障。
+
+我们的产品采用五个轮子的塑料涂层铝底座，气动椅子调节，方便升降。尺寸为宽度53厘米|20.87英寸，深度51厘米|20.08英寸，高度80厘米|31.50英寸，座椅高度44厘米|17.32英寸，座椅深度41厘米|16.14英寸，为您提供舒适的使用体验。
+
+我们的产品还提供软地板或硬地板滚轮选项，两种座椅泡沫密度可选：中等（1.8磅/立方英尺）或高（2.8磅/立方英尺），以及无扶手或8个位置PU扶手，以满足您的不同需求。
+
+我们的产品采用改性尼龙PA6/PA66涂层的铸铝外壳底座滑动件，外壳厚度为10毫米，座椅采用HD36泡沫，为您提供更加舒适的使用体验。我们的产品原产国为意大利，为您提供更加优质的品质保证。
+</code></pre></div>
+<h3 id="12-1">1.2 提示优化1: 解决生成文本太长<a class="headerlink" href="#12-1" title="Permanent link">⚓︎</a></h3>
+<p>它似乎很好地完成了要求，即从技术说明书开始编写产品描述，介绍了一个精致的中世纪风格办公椅。但是当我看到这个生成的内容时，我会觉得它<strong>太长了</strong>。</p>
+<p>在看到语言模型根据产品说明生成的第一个版本营销文案后，我们注意到文本长度过长，不太适合用作简明的电商广告语。所以这时候就需要对 Prompt 进行优化改进。具体来说，第一版结果满足了从技术说明转换为营销文案的要求，描写了中世纪风格办公椅的细节。但是过于冗长的文本不太适合电商场景。这时我们就可以<strong>在 Prompt 中添加长度限制</strong>，要求生成更简洁的文案。</p>
+<p>提取回答并根据空格拆分，中文答案为97个字，较好地完成了设计要求。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 优化后的 Prompt，要求生成描述不多于 50 词</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">您的任务是帮助营销团队基于技术说明书创建一个产品的零售网站描述。</span>
+
+<span class="s2">根据```标记的技术说明书中提供的信息，编写一个产品描述。</span>
+
+<span class="s2">使用最多50个词。</span>
+
+<span class="s2">技术规格：```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>中世纪风格办公家具系列，包括文件柜、办公桌、书柜、会议桌等。多种颜色和涂层可选，可带或不带扶手。底座涂层选项为不锈钢、哑光黑色、光泽白色或铬。适用于家庭或商业场所，符合合同使用资格。意大利制造。
+</code></pre></div>
+<p>我们可以计算一下输出的长度。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 由于中文需要分词，此处直接计算整体长度</span>
+<span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>97
+</code></pre></div>
+<p>当在 Prompt 中设置长度限制要求时，语言模型生成的输出长度不总能精确符合要求，但基本能控制在可接受的误差范围内。比如要求生成50词的文本，语言模型有时会生成60词左右的输出，但总体接近预定长度。</p>
+<p>这是因为<strong>语言模型在计算和判断文本长度时依赖于分词器</strong>，而分词器在字符统计方面不具备完美精度。目前存在多种方法可以尝试控制语言模型生成输出的长度，比如指定语句数、词数、汉字数等。</p>
+<p>虽然语言模型对长度约束的遵循不是百分之百精确，但通过迭代测试可以找到最佳的长度提示表达式，使生成文本基本符合长度要求。这需要开发者对语言模型的长度判断机制有一定理解，并且愿意进行多次试验来确定最靠谱的长度设置方法。</p>
+<h3 id="13-2">1.3 提示优化2: 处理抓错文本细节<a class="headerlink" href="#13-2" title="Permanent link">⚓︎</a></h3>
+<p>在迭代优化 Prompt 的过程中，我们还需要注意语言模型生成文本的细节是否符合预期。</p>
+<p>比如在这个案例中，进一步分析会发现,该椅子面向的其实是家具零售商，而不是终端消费者。所以生成的文案中过多强调风格、氛围等方面，而较少涉及产品技术细节，与目标受众的关注点不太吻合。这时候我们就可以继续调整 Prompt，明确要求语言模型生成面向家具零售商的描述，更多关注材质、工艺、结构等技术方面的表述。</p>
+<p>通过迭代地分析结果,检查是否捕捉到正确的细节,我们可以逐步优化 Prompt,使语言模型生成的文本更加符合预期的样式和内容要求。细节的精准控制是语言生成任务中非常重要的一点。我们需要训练语言模型<strong>根据不同目标受众关注不同的方面，输出风格和内容上都适合的文本</strong>。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 优化后的 Prompt，说明面向对象，应具有什么性质且侧重于什么方面</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">您的任务是帮助营销团队基于技术说明书创建一个产品的零售网站描述。</span>
+
+<span class="s2">根据```标记的技术说明书中提供的信息，编写一个产品描述。</span>
+
+<span class="s2">该描述面向家具零售商，因此应具有技术性质，并侧重于产品的材料构造。</span>
+
+<span class="s2">使用最多50个单词。</span>
+
+<span class="s2">技术规格： ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>这款中世纪风格办公家具系列包括文件柜、办公桌、书柜和会议桌等，适用于家庭或商业场所。可选多种外壳颜色和底座涂层，底座涂层选项为不锈钢、哑光黑色、光泽白色或铬。椅子可带或不带扶手，可选软地板或硬地板滚轮，两种座椅泡沫密度可选。外壳底座滑动件采用改性尼龙PA6/PA66涂层的铸铝，座椅采用HD36泡沫。原产国为意大利。
+</code></pre></div>
+<p>可见，通过修改  Prompt ，模型的关注点倾向了具体特征与技术细节。</p>
+<p>我可能进一步想要在描述的结尾展示出产品 ID。因此，我可以进一步改进这个 Prompt ，要求在描述的结尾，展示出说明书中的7位产品 ID。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 更进一步</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">您的任务是帮助营销团队基于技术说明书创建一个产品的零售网站描述。</span>
+
+<span class="s2">根据```标记的技术说明书中提供的信息，编写一个产品描述。</span>
+
+<span class="s2">该描述面向家具零售商，因此应具有技术性质，并侧重于产品的材料构造。</span>
+
+<span class="s2">在描述末尾，包括技术规格中每个7个字符的产品ID。</span>
+
+<span class="s2">使用最多50个单词。</span>
+
+<span class="s2">技术规格： ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>这款中世纪风格的办公家具系列包括文件柜、办公桌、书柜和会议桌等，适用于家庭或商业场所。可选多种外壳颜色和底座涂层，底座涂层选项为不锈钢、哑光黑色、光泽白色或铬。椅子可带或不带扶手，可选塑料前后靠背装饰或10种面料和6种皮革的全面装饰。座椅采用HD36泡沫，可选中等或高密度，座椅高度44厘米，深度41厘米。外壳底座滑动件采用改性尼龙PA6/PA66涂层的铸铝，外壳厚度为10毫米。原产国为意大利。产品ID：SWC-100/SWC-110。
+</code></pre></div>
+<p>通过上面的示例，我们可以看到 Prompt 迭代优化的一般过程。与训练机器学习模型类似，设计高效 Prompt 也需要多个版本的试错调整。</p>
+<p>具体来说，第一版 Prompt 应该满足明确和给模型思考时间两个原则。在此基础上，一般的迭代流程是：首先尝试一个初版，分析结果，然后继续改进 Prompt，逐步逼近最优。许多成功的Prompt 都是通过这种多轮调整得出的。</p>
+<p>后面我会展示一个更复杂的 Prompt 案例，让大家更深入地了解语言模型的强大能力。但在此之前，我想强调 Prompt 设计是一个循序渐进的过程。开发者需要做好多次尝试和错误的心理准备，通过不断调整和优化，才能找到最符合具体场景需求的 Prompt  形式。这需要智慧和毅力，但结果往往是值得的。</p>
+<p>让我们继续探索提示工程的奥秘，开发出令人惊叹的大语言模型应用吧!</p>
+<h3 id="14-3">1.4 提示优化3: 添加表格描述<a class="headerlink" href="#14-3" title="Permanent link">⚓︎</a></h3>
+<p>继续添加指引，要求提取产品尺寸信息并组织成表格，并指定表格的列、表名和格式；再将所有内容格式化为可以在网页使用的 HTML。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 要求它抽取信息并组织成表格，并指定表格的列、表名和格式</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">您的任务是帮助营销团队基于技术说明书创建一个产品的零售网站描述。</span>
+
+<span class="s2">根据```标记的技术说明书中提供的信息，编写一个产品描述。</span>
+
+<span class="s2">该描述面向家具零售商，因此应具有技术性质，并侧重于产品的材料构造。</span>
+
+<span class="s2">在描述末尾，包括技术规格中每个7个字符的产品ID。</span>
+
+<span class="s2">在描述之后，包括一个表格，提供产品的尺寸。表格应该有两列。第一列包括尺寸的名称。第二列只包括英寸的测量值。</span>
+
+<span class="s2">给表格命名为“产品尺寸”。</span>
+
+<span class="s2">将所有内容格式化为可用于网站的HTML格式。将描述放在&lt;div&gt;元素中。</span>
+
+<span class="s2">技术规格：```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&lt;div&gt;
+&lt;h2&gt;中世纪风格办公家具系列椅子&lt;/h2&gt;
+&lt;p&gt;这款椅子是中世纪风格办公家具系列的一部分，适用于家庭或商业场所。它有多种外壳颜色和底座涂层可选，包括不锈钢、哑光黑色、光泽白色或铬。您可以选择带或不带扶手的椅子，以及软地板或硬地板滚轮选项。此外，您可以选择两种座椅泡沫密度：中等（1.8磅/立方英尺）或高（2.8磅/立方英尺）。&lt;/p&gt;
+&lt;p&gt;椅子的外壳底座滑动件是改性尼龙PA6/PA66涂层的铸铝，外壳厚度为10毫米。座椅采用HD36泡沫，底座是五个轮子的塑料涂层铝底座，可以进行气动椅子调节，方便升降。此外，椅子符合合同使用资格，是您理想的选择。&lt;/p&gt;
+&lt;p&gt;产品ID：SWC-100&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;table&gt;
+  &lt;caption&gt;产品尺寸&lt;/caption&gt;
+  &lt;tr&gt;
+    &lt;th&gt;宽度&lt;/th&gt;
+    &lt;td&gt;20.87英寸&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;th&gt;深度&lt;/th&gt;
+    &lt;td&gt;20.08英寸&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;th&gt;高度&lt;/th&gt;
+    &lt;td&gt;31.50英寸&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;th&gt;座椅高度&lt;/th&gt;
+    &lt;td&gt;17.32英寸&lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;th&gt;座椅深度&lt;/th&gt;
+    &lt;td&gt;16.14英寸&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;
+</code></pre></div>
+<p>上述输出为 HTML 代码，我们可以使用 Python 的 IPython 库将 HTML 代码加载出来。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 表格是以 HTML 格式呈现的，加载出来</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+</code></pre></div>
+<div>
+<h2>中世纪风格办公家具系列椅子</h2>
+<p>这款椅子是中世纪风格办公家具系列的一部分，适用于家庭或商业场所。它有多种外壳颜色和底座涂层可选，包括不锈钢、哑光黑色、光泽白色或铬。您可以选择带或不带扶手的椅子，以及软地板或硬地板滚轮选项。此外，您可以选择两种座椅泡沫密度：中等（1.8磅/立方英尺）或高（2.8磅/立方英尺）。</p>
+<p>椅子的外壳底座滑动件是改性尼龙PA6/PA66涂层的铸铝，外壳厚度为10毫米。座椅采用HD36泡沫，底座是五个轮子的塑料涂层铝底座，可以进行气动椅子调节，方便升降。此外，椅子符合合同使用资格，是您理想的选择。</p>
+<p>产品ID：SWC-100</p>
+</div>
+
+<table>
+  <caption>产品尺寸</caption>
+  <tr>
+    <th>宽度</th>
+    <td>20.87英寸</td>
+  </tr>
+  <tr>
+    <th>深度</th>
+    <td>20.08英寸</td>
+  </tr>
+  <tr>
+    <th>高度</th>
+    <td>31.50英寸</td>
+  </tr>
+  <tr>
+    <th>座椅高度</th>
+    <td>17.32英寸</td>
+  </tr>
+  <tr>
+    <th>座椅深度</th>
+    <td>16.14英寸</td>
+  </tr>
+</table>
+
+<h2 id="_3">二、总结<a class="headerlink" href="#_3" title="Permanent link">⚓︎</a></h2>
+<p>本章重点讲解了在开发大语言模型应用时，采用迭代方式不断优化 Prompt 的过程。作为 Prompt 工程师，关键不是一开始就要求完美的 Prompt，而是掌握有效的 Prompt 开发流程。</p>
+<p>具体来说，首先编写初版 Prompt，然后通过多轮调整逐步改进，直到生成了满意的结果。对于更复杂的应用，可以在多个样本上进行迭代训练，评估 Prompt 的平均表现。在应用较为成熟后，才需要采用在多个样本集上评估 Prompt 性能的方式来进行细致优化。因为这需要较高的计算资源。</p>
+<p>总之，Prompt 工程师的核心是掌握 Prompt 的迭代开发和优化技巧，而非一开始就要求100%完美。通过不断调整试错，最终找到可靠适用的 Prompt 形式才是设计 Prompt 的正确方法。</p>
+<p>读者可以在 Jupyter Notebook 上，对本章给出的示例进行实践，修改 Prompt 并观察不同输出，以深入理解 Prompt 迭代优化的过程。这会对进一步开发复杂语言模型应用提供很好的实践准备。</p>
+<h2 id="_4">三、英文版<a class="headerlink" href="#_4" title="Permanent link">⚓︎</a></h2>
+<p><strong>产品说明书</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">fact_sheet_chair</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">OVERVIEW</span>
+<span class="s2">- Part of a beautiful family of mid-century inspired office furniture, </span>
+<span class="s2">including filing cabinets, desks, bookcases, meeting tables, and more.</span>
+<span class="s2">- Several options of shell color and base finishes.</span>
+<span class="s2">- Available with plastic back and front upholstery (SWC-100) </span>
+<span class="s2">or full upholstery (SWC-110) in 10 fabric and 6 leather options.</span>
+<span class="s2">- Base finish options are: stainless steel, matte black, </span>
+<span class="s2">gloss white, or chrome.</span>
+<span class="s2">- Chair is available with or without armrests.</span>
+<span class="s2">- Suitable for home or business settings.</span>
+<span class="s2">- Qualified for contract use.</span>
+
+<span class="s2">CONSTRUCTION</span>
+<span class="s2">- 5-wheel plastic coated aluminum base.</span>
+<span class="s2">- Pneumatic chair adjust for easy raise/lower action.</span>
+
+<span class="s2">DIMENSIONS</span>
+<span class="s2">- WIDTH 53 CM | 20.87”</span>
+<span class="s2">- DEPTH 51 CM | 20.08”</span>
+<span class="s2">- HEIGHT 80 CM | 31.50”</span>
+<span class="s2">- SEAT HEIGHT 44 CM | 17.32”</span>
+<span class="s2">- SEAT DEPTH 41 CM | 16.14”</span>
+
+<span class="s2">OPTIONS</span>
+<span class="s2">- Soft or hard-floor caster options.</span>
+<span class="s2">- Two choices of seat foam densities: </span>
+<span class="s2">medium (1.8 lb/ft3) or high (2.8 lb/ft3)</span>
+<span class="s2">- Armless or 8 position PU armrests </span>
+
+<span class="s2">MATERIALS</span>
+<span class="s2">SHELL BASE GLIDER</span>
+<span class="s2">- Cast Aluminum with modified nylon PA6/PA66 coating.</span>
+<span class="s2">- Shell thickness: 10 mm.</span>
+<span class="s2">SEAT</span>
+<span class="s2">- HD36 foam</span>
+
+<span class="s2">COUNTRY OF ORIGIN</span>
+<span class="s2">- Italy</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<p><strong>1.1 英文初始提示</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1">#   Prompt ：基于说明书生成营销描述</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Your task is to help a marketing team create a </span>
+<span class="s2">description for a retail website of a product based </span>
+<span class="s2">on a technical fact sheet.</span>
+
+<span class="s2">Write a product description based on the information </span>
+<span class="s2">provided in the technical specifications delimited by </span>
+<span class="s2">triple backticks.</span>
+
+<span class="s2">Technical specifications: ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Introducing our stunning mid-century inspired office chair, the perfect addition to any home or business setting. This chair is part of a beautiful family of office furniture, including filing cabinets, desks, bookcases, meeting tables, and more, all designed with a timeless mid-century aesthetic.
+
+One of the standout features of this chair is the variety of customization options available. You can choose from several shell colors and base finishes to perfectly match your existing decor. The chair is available with either plastic back and front upholstery or full upholstery in a range of 10 fabric and 6 leather options, allowing you to create a look that is uniquely yours.
+
+The chair is also available with or without armrests, giving you the flexibility to choose the option that best suits your needs. The base finish options include stainless steel, matte black, gloss white, or chrome, ensuring that you can find the perfect match for your space.
+
+In terms of construction, this chair is built to last. It features a 5-wheel plastic coated aluminum base, providing stability and mobility. The pneumatic chair adjust allows for easy raise and lower action, ensuring optimal comfort throughout the day.
+
+When it comes to dimensions, this chair is designed with both style and comfort in mind. With a width of 53 cm (20.87&quot;), depth of 51 cm (20.08&quot;), and height of 80 cm (31.50&quot;), it offers ample space without overwhelming your space. The seat height is 44 cm (17.32&quot;) and the seat depth is 41 cm (16.14&quot;), providing a comfortable seating experience for extended periods.
+
+We understand that every space is unique, which is why we offer a range of options to further customize your chair. You can choose between soft or hard-floor caster options, ensuring that your chair glides smoothly on any surface. Additionally, you have the choice between two seat foam densities: medium (1.8 lb/ft3) or high (2.8 lb/ft3), allowing you to select the level of support that suits your preferences. The chair is also available with armless design or 8 position PU armrests, providing additional comfort and versatility.
+
+When it comes to materials, this chair is crafted with the utmost attention to quality. The shell base glider is made of cast aluminum with a modified nylon PA6/PA66 coating, ensuring durability and longevity. The shell thickness is 10 mm, providing a sturdy and reliable structure. The seat is made of HD36 foam, offering a comfortable and supportive seating experience.
+
+Finally, this chair is proudly made in Italy, known for its exceptional craftsmanship and attention to detail. With its timeless design and superior construction, this chair is not only a stylish addition to any space but also a reliable and functional piece of furniture.
+
+Upgrade your office or home with our mid-century inspired office chair and experience the perfect blend of style, comfort, and functionality.
+</code></pre></div>
+<p><strong>1.2限制生成长度</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 优化后的 Prompt，要求生成描述不多于 50 词</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Your task is to help a marketing team create a </span>
+<span class="s2">description for a retail website of a product based </span>
+<span class="s2">on a technical fact sheet.</span>
+
+<span class="s2">Write a product description based on the information </span>
+<span class="s2">provided in the technical specifications delimited by </span>
+<span class="s2">triple backticks.</span>
+
+<span class="s2">Use at most 50 words.</span>
+
+<span class="s2">Technical specifications: ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Introducing our mid-century inspired office chair, part of a beautiful furniture collection. With various color and finish options, it can be customized to suit any space. Choose between plastic or full upholstery in a range of fabrics and leathers. The chair features a durable aluminum base and easy height adjustment. Suitable for both home and business use. Made in Italy.
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">lst</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">lst</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>60
+</code></pre></div>
+<p><strong>1.3处理抓错文本细节</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 优化后的 Prompt，说明面向对象，应具有什么性质且侧重于什么方面</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Your task is to help a marketing team create a </span>
+<span class="s2">description for a retail website of a product based </span>
+<span class="s2">on a technical fact sheet.</span>
+
+<span class="s2">Write a product description based on the information </span>
+<span class="s2">provided in the technical specifications delimited by </span>
+<span class="s2">triple backticks.</span>
+
+<span class="s2">The description is intended for furniture retailers, </span>
+<span class="s2">so should be technical in nature and focus on the </span>
+<span class="s2">materials the product is constructed from.</span>
+
+<span class="s2">Use at most 50 words.</span>
+
+<span class="s2">Technical specifications: ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Introducing our mid-century inspired office chair, part of a beautiful furniture collection. With various shell colors and base finishes, it offers versatility for any setting. Choose between plastic or full upholstery in a range of fabric and leather options. The chair features a durable aluminum base with 5-wheel design and pneumatic chair adjustment. Made in Italy.
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># 更进一步，要求在描述末尾包含 7个字符的产品ID</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Your task is to help a marketing team create a </span>
+<span class="s2">description for a retail website of a product based </span>
+<span class="s2">on a technical fact sheet.</span>
+
+<span class="s2">Write a product description based on the information </span>
+<span class="s2">provided in the technical specifications delimited by </span>
+<span class="s2">triple backticks.</span>
+
+<span class="s2">The description is intended for furniture retailers, </span>
+<span class="s2">so should be technical in nature and focus on the </span>
+<span class="s2">materials the product is constructed from.</span>
+
+<span class="s2">At the end of the description, include every 7-character </span>
+<span class="s2">Product ID in the technical specification.</span>
+
+<span class="s2">Use at most 50 words.</span>
+
+<span class="s2">Technical specifications: ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Introducing our mid-century inspired office chair, part of a beautiful family of furniture. This chair offers a range of options, including different shell colors and base finishes. Choose between plastic or full upholstery in various fabric and leather options. The chair is constructed with a 5-wheel plastic coated aluminum base and features a pneumatic chair adjust for easy raise/lower action. With its sleek design and multiple customization options, this chair is suitable for both home and business settings. Made in Italy.
+
+Product IDs: SWC-100, SWC-110
+</code></pre></div>
+<p><strong>1.4英文添加表格描述</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 要求它抽取信息并组织成表格，并指定表格的列、表名和格式</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Your task is to help a marketing team create a </span>
+<span class="s2">description for a retail website of a product based </span>
+<span class="s2">on a technical fact sheet.</span>
+
+<span class="s2">Write a product description based on the information </span>
+<span class="s2">provided in the technical specifications delimited by </span>
+<span class="s2">triple backticks.</span>
+
+<span class="s2">The description is intended for furniture retailers, </span>
+<span class="s2">so should be technical in nature and focus on the </span>
+<span class="s2">materials the product is constructed from.</span>
+
+<span class="s2">At the end of the description, include every 7-character </span>
+<span class="s2">Product ID in the technical specification.</span>
+
+<span class="s2">After the description, include a table that gives the </span>
+<span class="s2">product&#39;s dimensions. The table should have two columns.</span>
+<span class="s2">In the first column include the name of the dimension. </span>
+<span class="s2">In the second column include the measurements in inches only.</span>
+
+<span class="s2">Give the table the title &#39;Product Dimensions&#39;.</span>
+
+<span class="s2">Format everything as HTML that can be used in a website. </span>
+<span class="s2">Place the description in a &lt;div&gt; element.</span>
+
+<span class="s2">Technical specifications: ```</span><span class="si">{</span><span class="n">fact_sheet_chair</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+<span class="c1"># 表格是以 HTML 格式呈现的，加载出来</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">HTML</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">HTML</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&lt;div&gt;
+  &lt;h2&gt;Product Description&lt;/h2&gt;
+  &lt;p&gt;
+    Introducing our latest addition to our mid-century inspired office furniture collection, the SWC-100 Chair. This chair is part of a beautiful family of furniture that includes filing cabinets, desks, bookcases, meeting tables, and more. With its sleek design and customizable options, it is perfect for both home and business settings.
+  &lt;/p&gt;
+  &lt;p&gt;
+    The SWC-100 Chair is available in several options of shell color and base finishes, allowing you to choose the perfect combination to match your space. You can opt for plastic back and front upholstery or full upholstery in a variety of fabric and leather options. The base finish options include stainless steel, matte black, gloss white, or chrome. Additionally, you have the choice of having armrests or going armless.
+  &lt;/p&gt;
+  &lt;p&gt;
+    Constructed with durability and comfort in mind, the SWC-100 Chair features a 5-wheel plastic coated aluminum base for stability and mobility. The chair also has a pneumatic adjuster, allowing for easy raise and lower action to find the perfect height for your needs.
+  &lt;/p&gt;
+  &lt;p&gt;
+    The SWC-100 Chair is designed to provide maximum comfort and support. The seat is made with HD36 foam, ensuring a plush and comfortable seating experience. You also have the option to choose between soft or hard-floor casters, depending on your flooring needs. Additionally, you can select from two choices of seat foam densities: medium (1.8 lb/ft3) or high (2.8 lb/ft3). The chair is also available with 8 position PU armrests for added convenience.
+  &lt;/p&gt;
+  &lt;p&gt;
+    Made with high-quality materials, the SWC-100 Chair is built to last. The shell base glider is constructed with cast aluminum and modified nylon PA6/PA66 coating, providing durability and stability. The shell has a thickness of 10 mm, ensuring strength and longevity. The chair is proudly made in Italy, known for its craftsmanship and attention to detail.
+  &lt;/p&gt;
+  &lt;p&gt;
+    Whether you need a chair for your home office or a professional workspace, the SWC-100 Chair is the perfect choice. Its stylish design, customizable options, and high-quality construction make it a standout piece of furniture that will enhance any space.
+  &lt;/p&gt;
+  &lt;h2&gt;Product Dimensions&lt;/h2&gt;
+  &lt;table&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Dimension&lt;/th&gt;
+      &lt;th&gt;Measurement (inches)&lt;/th&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Width&lt;/td&gt;
+      &lt;td&gt;20.87&quot;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Depth&lt;/td&gt;
+      &lt;td&gt;20.08&quot;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Height&lt;/td&gt;
+      &lt;td&gt;31.50&quot;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Seat Height&lt;/td&gt;
+      &lt;td&gt;17.32&quot;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Seat Depth&lt;/td&gt;
+      &lt;td&gt;16.14&quot;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/table&gt;
+&lt;/div&gt;
+
+Product IDs: SWC-100, SWC-110
+</code></pre></div>
+<div>
+  <h2>Product Description</h2>
+  <p>
+    Introducing our latest addition to our mid-century inspired office furniture collection, the SWC-100 Chair. This chair is part of a beautiful family of furniture that includes filing cabinets, desks, bookcases, meeting tables, and more. With its sleek design and customizable options, it is perfect for both home and business settings.
+  </p>
+  <p>
+    The SWC-100 Chair is available in several options of shell color and base finishes, allowing you to choose the perfect combination to match your space. You can opt for plastic back and front upholstery or full upholstery in a variety of fabric and leather options. The base finish options include stainless steel, matte black, gloss white, or chrome. Additionally, you have the choice of having armrests or going armless.
+  </p>
+  <p>
+    Constructed with durability and comfort in mind, the SWC-100 Chair features a 5-wheel plastic coated aluminum base for stability and mobility. The chair also has a pneumatic adjuster, allowing for easy raise and lower action to find the perfect height for your needs.
+  </p>
+  <p>
+    The SWC-100 Chair is designed to provide maximum comfort and support. The seat is made with HD36 foam, ensuring a plush and comfortable seating experience. You also have the option to choose between soft or hard-floor casters, depending on your flooring needs. Additionally, you can select from two choices of seat foam densities: medium (1.8 lb/ft3) or high (2.8 lb/ft3). The chair is also available with 8 position PU armrests for added convenience.
+  </p>
+  <p>
+    Made with high-quality materials, the SWC-100 Chair is built to last. The shell base glider is constructed with cast aluminum and modified nylon PA6/PA66 coating, providing durability and stability. The shell has a thickness of 10 mm, ensuring strength and longevity. The chair is proudly made in Italy, known for its craftsmanship and attention to detail.
+  </p>
+  <p>
+    Whether you need a chair for your home office or a professional workspace, the SWC-100 Chair is the perfect choice. Its stylish design, customizable options, and high-quality construction make it a standout piece of furniture that will enhance any space.
+  </p>
+  <h2>Product Dimensions</h2>
+  <table>
+    <tr>
+      <th>Dimension</th>
+      <th>Measurement (inches)</th>
+    </tr>
+    <tr>
+      <td>Width</td>
+      <td>20.87"</td>
+    </tr>
+    <tr>
+      <td>Depth</td>
+      <td>20.08"</td>
+    </tr>
+    <tr>
+      <td>Height</td>
+      <td>31.50"</td>
+    </tr>
+    <tr>
+      <td>Seat Height</td>
+      <td>17.32"</td>
+    </tr>
+    <tr>
+      <td>Seat Depth</td>
+      <td>16.14"</td>
+    </tr>
+  </table>
+</div>
+
+<p>Product IDs: SWC-100, SWC-110</p>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      最后更新:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+        <br>
+        创建日期:
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../2.%20%E6%8F%90%E7%A4%BA%E5%8E%9F%E5%88%99%20Guidelines/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第二章 提示原则">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第二章 提示原则
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../4.%20%E6%96%87%E6%9C%AC%E6%A6%82%E6%8B%AC%20Summarizing/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第四章 文本概括">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第四章 文本概括
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Ean Yang
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/YQisme" target="_blank" rel="noopener" title="github主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://space.bilibili.com/244185393?spm_id_from=333.788.0.0" target="_blank" rel="noopener" title="b站主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M488.6 104.1c16.7 18.1 24.4 39.7 23.3 65.7v202.4c-.4 26.4-9.2 48.1-26.5 65.1-17.2 17-39.1 25.9-65.5 26.7H92.02c-26.45-.8-48.21-9.8-65.28-27.2C9.682 419.4.767 396.5 0 368.2V169.8c.767-26 9.682-47.6 26.74-65.7C43.81 87.75 65.57 78.77 92.02 78h29.38L96.05 52.19c-5.75-5.73-8.63-13-8.63-21.79 0-8.8 2.88-16.06 8.63-21.797C101.8 2.868 109.1 0 117.9 0s16.1 2.868 21.9 8.603L213.1 78h88l74.5-69.397C381.7 2.868 389.2 0 398 0c8.8 0 16.1 2.868 21.9 8.603 5.7 5.737 8.6 12.997 8.6 21.797 0 8.79-2.9 16.06-8.6 21.79L394.6 78h29.3c26.4.77 48 9.75 64.7 26.1zm-38.8 69.7c-.4-9.6-3.7-17.4-10.7-23.5-5.2-6.1-14-9.4-22.7-9.8H96.05c-9.59.4-17.45 3.7-23.58 9.8-6.14 6.1-9.4 13.9-9.78 23.5v194.4c0 9.2 3.26 17 9.78 23.5s14.38 9.8 23.58 9.8H416.4c9.2 0 17-3.3 23.3-9.8 6.3-6.5 9.7-14.3 10.1-23.5V173.8zm-264.3 42.7c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.2 6.3-14 9.5-23.6 9.5-9.6 0-17.5-3.2-23.6-9.5-6.1-6.3-9.4-14-9.8-23.2v-33.3c.4-9.1 3.8-16.9 10.1-23.2 6.3-6.3 13.2-9.6 23.3-10 9.2.4 17 3.7 23.3 10zm191.5 0c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.1 6.3-14 9.5-23.6 9.5-9.6 0-17.4-3.2-23.6-9.5-7-6.3-9.4-14-9.7-23.2v-33.3c.3-9.1 3.7-16.9 10-23.2 6.3-6.3 14.1-9.6 23.3-10 9.2.4 17 3.7 23.3 10z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://eanyang7.com" target="_blank" rel="noopener" title="个人主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M112 48a48 48 0 1 1 96 0 48 48 0 1 1-96 0zm40 304v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V256.9l-28.6 47.6c-9.1 15.1-28.8 20-43.9 10.9s-20-28.8-10.9-43.9l58.3-97c17.4-28.9 48.6-46.6 82.3-46.6h29.7c33.7 0 64.9 17.7 82.3 46.6l58.3 97c9.1 15.1 4.2 34.8-10.9 43.9s-34.8 4.2-43.9-10.9L232 256.9V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V352h-16z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.prune", "navigation.top", "toc.follow", "header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

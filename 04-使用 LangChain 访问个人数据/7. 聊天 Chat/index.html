@@ -1,0 +1,1561 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="面向开发者的 LLM 入门教程，吴恩达大模型系列课程中文版">
+      
+      
+        <meta name="author" content="Ean Yang">
+      
+      
+        <link rel="canonical" href="https://eanyang7.github.io/prompt-engineering-for-developers/04-%E4%BD%BF%E7%94%A8%20LangChain%20%E8%AE%BF%E9%97%AE%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE/7.%20%E8%81%8A%E5%A4%A9%20Chat/">
+      
+      
+        <link rel="prev" href="../6.%20%E9%97%AE%E7%AD%94%20Question%20Answering/">
+      
+      
+        <link rel="next" href="../8.%20%E6%80%BB%E7%BB%93%20Summary/">
+      
+      
+      <link rel="icon" href="../../assets/favicon.jpg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.12">
+    
+    
+      
+        <title>第七章、聊天 Chat - 面向开发者的 LLM 入门教程</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#chat" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-header__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            面向开发者的 LLM 入门教程
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第七章、聊天 Chat
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple"  aria-label="切换为暗黑模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换为暗黑模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="red"  aria-label="切换为浅色模式"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="切换为浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-nav__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    面向开发者的 LLM 入门教程
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    面向开发者的 LLM 入门课程
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%89%8D%E8%A8%80/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    前言
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    环境配置
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../01-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    01 面向开发者的提示工程
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../02-%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%20ChatGPT%20%E7%9A%84%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    02 搭建基于 ChatGPT 的问答系统
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../03-%E4%BD%BF%E7%94%A8%20LangChain%20%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    03 使用 LangChain 开发应用程序
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    04 使用 LangChain 访问个人数据
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            04 使用 LangChain 访问个人数据
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第一章 简介
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.%20%E6%96%87%E6%A1%A3%E5%8A%A0%E8%BD%BD%20Document%20Loading/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第二章 文档加载
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.%20%E6%96%87%E6%A1%A3%E5%88%86%E5%89%B2%20Splitting/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三章 文档分割
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.%20%E5%90%91%E9%87%8F%E6%95%B0%E6%8D%AE%E5%BA%93%E4%B8%8E%E8%AF%8D%E5%90%91%E9%87%8F%20Vectorstores%20and%20Embeddings/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第四章 向量数据库与词向量(Vectorstores and Embeddings)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5.%20%E6%A3%80%E7%B4%A2%20Retrieval/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第五章 检索(Retrieval)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6.%20%E9%97%AE%E7%AD%94%20Question%20Answering/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第六章 问答
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    第七章、聊天 Chat
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    第七章、聊天 Chat
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、复现之前代码
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、记忆（Memory）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversationalretrievalchain" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、对话检索链（ConversationalRetrievalChain）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      四、定义一个适用于您文档的聊天机器人
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      五、英文版
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8.%20%E6%80%BB%E7%BB%93%20Summary/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第八章、总结
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../readme/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第四部分 使用 LangChain 访问个人数据
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、复现之前代码
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、记忆（Memory）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conversationalretrievalchain" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、对话检索链（ConversationalRetrievalChain）
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      四、定义一个适用于您文档的聊天机器人
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      五、英文版
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/04-使用 LangChain 访问个人数据/7. 聊天 Chat.md" title="编辑此页" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/04-使用 LangChain 访问个人数据/7. 聊天 Chat.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/></svg>
+    </a>
+  
+
+
+<h1 id="chat">第七章、聊天 Chat<a class="headerlink" href="#chat" title="Permanent link">⚓︎</a></h1>
+<p>回想一下检索增强生成 (retrieval augmented generation，RAG) 的整体工作流程：</p>
+<p><img alt="overview.jpeg" src="../../figures/C4/overview.png" /></p>
+<div align='center'> 图 4.7.1 RAG </div>
+
+<p>我们已经接近完成一个功能性的聊天机器人了。我们讨论了<code>文档加载</code>、<code>切分</code>、<code>存储</code>和<code>检索</code>。我们展示了如何使用<code>检索 QA</code> 链在 Q+A 中使用<code>检索</code>生成输出。</p>
+<p>我们的机器人已经可以回答问题了，但还无法处理后续问题，无法进行真正的对话。在本章中，我们将解决这个问题。</p>
+<p>我们现在将创建一个问答聊天机器人。它与之前非常相似，但我们将添加聊天历史的功能。这是您之前进行的任何对话或消息。这将使机器人在尝试回答问题时能够考虑到聊天历史的上下文。所以，如果您继续提问，它会知道您想谈论什么。</p>
+<h2 id="_1">一、复现之前代码<a class="headerlink" href="#_1" title="Permanent link">⚓︎</a></h2>
+<p>以下代码是为了 openai LLM 版本备案，直至其被弃用（于 2023 年 9 月）。LLM 响应通常会有所不同，但在使用不同模型版本时，这种差异可能会更明显。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">datetime</span>
+<span class="n">current_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+<span class="k">if</span> <span class="n">current_date</span> <span class="o">&lt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">date</span><span class="p">(</span><span class="mi">2023</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+    <span class="n">llm_name</span> <span class="o">=</span> <span class="s2">&quot;gpt-3.5-turbo-0301&quot;</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">llm_name</span> <span class="o">=</span> <span class="s2">&quot;gpt-3.5-turbo&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">llm_name</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>gpt-3.5-turbo-0301
+</code></pre></div>
+<p>如果您想在 <code>Lang Chain plus</code> 平台上进行实验：</p>
+<ul>
+<li>
+<p>前往 langchain plus 平台并注册</p>
+</li>
+<li>
+<p>从您的帐户设置创建 api 密钥</p>
+</li>
+<li>
+<p>在下面的代码中使用此 api 密钥</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1">#import os</span>
+<span class="c1">#os.environ[&quot;LANGCHAIN_TRACING_V2&quot;] = &quot;true&quot;</span>
+<span class="c1">#os.environ[&quot;LANGCHAIN_ENDPOINT&quot;] = &quot;https://api.langchain.plus&quot;</span>
+<span class="c1">#os.environ[&quot;LANGCHAIN_API_KEY&quot;] = &quot;...&quot;</span>
+</code></pre></div>
+<p>首先我们加载在前几节课创建的向量数据库，并测试一下：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 加载向量库，其中包含了所有课程材料的 Embedding。</span>
+<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">Chroma</span>
+<span class="kn">from</span> <span class="nn">langchain.embeddings.openai</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
+<span class="kn">import</span> <span class="nn">panel</span> <span class="k">as</span> <span class="nn">pn</span>  <span class="c1"># GUI</span>
+<span class="c1"># pn.extension()</span>
+
+<span class="n">persist_directory</span> <span class="o">=</span> <span class="s1">&#39;docs/chroma/matplotlib&#39;</span>
+<span class="n">embedding</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
+<span class="n">vectordb</span> <span class="o">=</span> <span class="n">Chroma</span><span class="p">(</span><span class="n">persist_directory</span><span class="o">=</span><span class="n">persist_directory</span><span class="p">,</span> <span class="n">embedding_function</span><span class="o">=</span><span class="n">embedding</span><span class="p">)</span>
+
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;这门课的主要内容是什么？&quot;</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">vectordb</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="n">question</span><span class="p">,</span><span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>3
+</code></pre></div>
+<p>接着我们从 OpenAI 的 API 创建一个 LLM：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">llm_name</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">llm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="s2">&quot;你好&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&#39;你好！有什么我可以帮助你的吗？&#39;
+</code></pre></div>
+<p>再创建一个基于模板的检索链：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 构建 prompt</span>
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;使用以下上下文来回答最后的问题。如果你不知道答案，就说你不知道，不要试图编造答案。最多使用三句话。尽量使答案简明扼要。总是在回答的最后说“谢谢你的提问！”。</span>
+<span class="si">{context}</span>
+<span class="s2">问题: </span><span class="si">{question}</span>
+<span class="s2">有用的回答:&quot;&quot;&quot;</span>
+<span class="n">QA_CHAIN_PROMPT</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="p">(</span><span class="n">input_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="s2">&quot;question&quot;</span><span class="p">],</span><span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,)</span>
+
+<span class="c1"># 运行 chain</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span>
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;这门课的主题是什么？&quot;</span>
+<span class="n">qa_chain</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_chain_type</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span>
+                                       <span class="n">retriever</span><span class="o">=</span><span class="n">vectordb</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">(),</span>
+                                       <span class="n">return_source_documents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">chain_type_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">QA_CHAIN_PROMPT</span><span class="p">})</span>
+
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">qa_chain</span><span class="p">({</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>这门课的主题是 Matplotlib 数据可视化库的初学者指南。
+</code></pre></div>
+<h2 id="memory">二、记忆（Memory）<a class="headerlink" href="#memory" title="Permanent link">⚓︎</a></h2>
+<p>现在让我们更进一步，添加一些记忆功能。</p>
+<p>我们将使用 <code>ConversationBufferMemory</code>。它保存聊天消息历史记录的列表，这些历史记录将在回答问题时与问题一起传递给聊天机器人，从而将它们添加到上下文中。</p>
+<p>需要注意的是，我们之前讨论的上下文检索等方法，在这里同样可用。 </p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.memory</span> <span class="kn">import</span> <span class="n">ConversationBufferMemory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">ConversationBufferMemory</span><span class="p">(</span>
+    <span class="n">memory_key</span><span class="o">=</span><span class="s2">&quot;chat_history&quot;</span><span class="p">,</span> <span class="c1"># 与 prompt 的输入变量保持一致。</span>
+    <span class="n">return_messages</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># 将以消息列表的形式返回聊天记录，而不是单个字符串</span>
+<span class="p">)</span>
+</code></pre></div>
+<h2 id="conversationalretrievalchain">三、对话检索链（ConversationalRetrievalChain）<a class="headerlink" href="#conversationalretrievalchain" title="Permanent link">⚓︎</a></h2>
+<p>对话检索链（ConversationalRetrievalChain）在检索 QA 链的基础上，增加了处理对话历史的能力。</p>
+<p>它的工作流程是:</p>
+<ol>
+<li>
+<p>将之前的对话与新问题合并生成一个完整的查询语句。</p>
+</li>
+<li>
+<p>在向量数据库中搜索该查询的相关文档。</p>
+</li>
+<li>
+<p>获取结果后,存储所有答案到对话记忆区。</p>
+</li>
+<li>
+<p>用户可在 UI 中查看完整的对话流程。</p>
+</li>
+</ol>
+<p><img alt="" src="../../figures/C4/Modular_components.png" /></p>
+<div align='center'> 图 4.7.2 对话检索链 </div>
+
+<p>这种链式方式将新问题放在之前对话的语境中进行检索，可以处理依赖历史信息的查询。并保留所有信息在对话记忆中，方便追踪。</p>
+<p>接下来让我们可以测试这个对话检索链的效果：</p>
+<p>首先提出一个无历史的问题“这门课会学习 Python 吗？”，并查看回答。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">ConversationalRetrievalChain</span>
+<span class="n">retriever</span><span class="o">=</span><span class="n">vectordb</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
+<span class="n">qa</span> <span class="o">=</span> <span class="n">ConversationalRetrievalChain</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span>
+    <span class="n">llm</span><span class="p">,</span>
+    <span class="n">retriever</span><span class="o">=</span><span class="n">retriever</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span>
+<span class="p">)</span>
+
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;这门课会学习 Python 吗？&quot;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">qa</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;answer&#39;</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>是的，这门课程会涉及到 Python 编程语言的使用，特别是在数据可视化方面。因此，学习 Python 是这门课程的前提之一。
+</code></pre></div>
+<p>然后基于答案进行下一个问题“为什么这门课需要这个前提？”：</p>
+<div class="highlight"><pre><span></span><code><span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;为什么这门课需要这个前提？&quot;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">qa</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;answer&#39;</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>学习Python的前提是需要具备一定的计算机基础知识，包括但不限于计算机操作系统、编程语言基础、数据结构与算法等。此外，对于数据科学领域的学习，还需要具备一定的数学和统计学基础，如线性代数、微积分、概率论与数理统计等。
+</code></pre></div>
+<p>可以看到，虽然 LLM 的回答有些不对劲，但它准确地判断了这个前提的指代内容是学习 Python，也就是我们成功地传递给了它历史信息。这种持续学习和关联前后问题的能力，可大大增强问答系统的连续性和智能水平。</p>
+<h2 id="_2">四、定义一个适用于您文档的聊天机器人<a class="headerlink" href="#_2" title="Permanent link">⚓︎</a></h2>
+<p>通过上述所学内容，我们可以通过以下代码来定义一个适用于私人文档的聊天机器人：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.embeddings.openai</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
+<span class="kn">from</span> <span class="nn">langchain.text_splitter</span> <span class="kn">import</span> <span class="n">CharacterTextSplitter</span><span class="p">,</span> <span class="n">RecursiveCharacterTextSplitter</span>
+<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">DocArrayInMemorySearch</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">TextLoader</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span><span class="p">,</span>  <span class="n">ConversationalRetrievalChain</span>
+<span class="kn">from</span> <span class="nn">langchain.memory</span> <span class="kn">import</span> <span class="n">ConversationBufferMemory</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">TextLoader</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">PyPDFLoader</span>
+
+<span class="k">def</span> <span class="nf">load_db</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">chain_type</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    该函数用于加载 PDF 文件，切分文档，生成文档的嵌入向量，创建向量数据库，定义检索器，并创建聊天机器人实例。</span>
+
+<span class="sd">    参数:</span>
+<span class="sd">    file (str): 要加载的 PDF 文件路径。</span>
+<span class="sd">    chain_type (str): 链类型，用于指定聊天机器人的类型。</span>
+<span class="sd">    k (int): 在检索过程中，返回最相似的 k 个结果。</span>
+
+<span class="sd">    返回:</span>
+<span class="sd">    qa (ConversationalRetrievalChain): 创建的聊天机器人实例。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 载入文档</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">PyPDFLoader</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">documents</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+    <span class="c1"># 切分文档</span>
+    <span class="n">text_splitter</span> <span class="o">=</span> <span class="n">RecursiveCharacterTextSplitter</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chunk_overlap</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">docs</span> <span class="o">=</span> <span class="n">text_splitter</span><span class="o">.</span><span class="n">split_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span>
+    <span class="c1"># 定义 Embeddings</span>
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
+    <span class="c1"># 根据数据创建向量数据库</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">DocArrayInMemorySearch</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+    <span class="c1"># 定义检索器</span>
+    <span class="n">retriever</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">(</span><span class="n">search_type</span><span class="o">=</span><span class="s2">&quot;similarity&quot;</span><span class="p">,</span> <span class="n">search_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">})</span>
+    <span class="c1"># 创建 chatbot 链，Memory 由外部管理</span>
+    <span class="n">qa</span> <span class="o">=</span> <span class="n">ConversationalRetrievalChain</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span>
+        <span class="n">llm</span><span class="o">=</span><span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">llm_name</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> 
+        <span class="n">chain_type</span><span class="o">=</span><span class="n">chain_type</span><span class="p">,</span> 
+        <span class="n">retriever</span><span class="o">=</span><span class="n">retriever</span><span class="p">,</span> 
+        <span class="n">return_source_documents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">return_generated_question</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">qa</span> 
+
+<span class="kn">import</span> <span class="nn">panel</span> <span class="k">as</span> <span class="nn">pn</span>
+<span class="kn">import</span> <span class="nn">param</span>
+
+<span class="c1"># 用于存储聊天记录、回答、数据库查询和回复</span>
+<span class="k">class</span> <span class="nc">cbfs</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">Parameterized</span><span class="p">):</span>
+    <span class="n">chat_history</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">List</span><span class="p">([])</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">db_query</span>  <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">db_response</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">List</span><span class="p">([])</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">cbfs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span> <span class="o">=</span> <span class="s2">&quot;docs/matplotlib/第一回：Matplotlib初相识.pdf&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qa</span> <span class="o">=</span> <span class="n">load_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span><span class="p">,</span><span class="s2">&quot;stuff&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="c1"># 将文档加载到聊天机器人中</span>
+    <span class="k">def</span> <span class="nf">call_load_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        count: 数量</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">file_input</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># 初始化或未指定文件 :</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded File: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_input</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;temp.pdf&quot;</span><span class="p">)</span>  <span class="c1"># 本地副本</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span> <span class="o">=</span> <span class="n">file_input</span><span class="o">.</span><span class="n">filename</span>
+            <span class="n">button_load</span><span class="o">.</span><span class="n">button_style</span><span class="o">=</span><span class="s2">&quot;outline&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qa</span> <span class="o">=</span> <span class="n">load_db</span><span class="p">(</span><span class="s2">&quot;temp.pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;stuff&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">button_load</span><span class="o">.</span><span class="n">button_style</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clr_history</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded File: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 处理对话链</span>
+    <span class="k">def</span> <span class="nf">convchain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        query: 用户的查询</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="s1">&#39;User:&#39;</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)),</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qa</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span> <span class="s2">&quot;chat_history&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">query</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_query</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;generated_question&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_response</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;source_documents&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">answer</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;answer&#39;</span><span class="p">]</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">panels</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="s1">&#39;User:&#39;</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)),</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="s1">&#39;ChatBot:&#39;</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">answer</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">}))</span>
+        <span class="p">])</span>
+        <span class="n">inp</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># 清除时清除装载指示器</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">panels</span><span class="p">,</span><span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 获取最后发送到数据库的问题</span>
+    <span class="nd">@param</span><span class="o">.</span><span class="n">depends</span><span class="p">(</span><span class="s1">&#39;db_query &#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_lquest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_query</span> <span class="p">:</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+                <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last question to DB:&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">})),</span>
+                <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s2">&quot;no DB accesses so far&quot;</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DB query:&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">})),</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_query</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 获取数据库返回的源文件</span>
+    <span class="nd">@param</span><span class="o">.</span><span class="n">depends</span><span class="p">(</span><span class="s1">&#39;db_response&#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_response</span><span class="p">:</span>
+            <span class="k">return</span> 
+        <span class="n">rlist</span><span class="o">=</span><span class="p">[</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result of DB lookup:&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">}))]</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_response</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">doc</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="o">*</span><span class="n">rlist</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 获取当前聊天记录</span>
+    <span class="nd">@param</span><span class="o">.</span><span class="n">depends</span><span class="p">(</span><span class="s1">&#39;convchain&#39;</span><span class="p">,</span> <span class="s1">&#39;clr_history&#39;</span><span class="p">)</span> 
+    <span class="k">def</span> <span class="nf">get_chats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s2">&quot;No History Yet&quot;</span><span class="p">)),</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">rlist</span><span class="o">=</span><span class="p">[</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current Chat History variable&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">}))]</span>
+        <span class="k">for</span> <span class="n">exchange</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">exchange</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="o">*</span><span class="n">rlist</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 清除聊天记录</span>
+    <span class="k">def</span> <span class="nf">clr_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> 
+</code></pre></div>
+<p>接着可以运行这个聊天机器人：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 初始化聊天机器人</span>
+<span class="n">cb</span> <span class="o">=</span> <span class="n">cbfs</span><span class="p">()</span> 
+
+<span class="c1"># 定义界面的小部件</span>
+<span class="n">file_input</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">FileInput</span><span class="p">(</span><span class="n">accept</span><span class="o">=</span><span class="s1">&#39;.pdf&#39;</span><span class="p">)</span> <span class="c1"># PDF 文件的文件输入小部件</span>
+<span class="n">button_load</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Load DB&quot;</span><span class="p">,</span> <span class="n">button_type</span><span class="o">=</span><span class="s1">&#39;primary&#39;</span><span class="p">)</span> <span class="c1"># 加载数据库的按钮</span>
+<span class="n">button_clearhistory</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Clear History&quot;</span><span class="p">,</span> <span class="n">button_type</span><span class="o">=</span><span class="s1">&#39;warning&#39;</span><span class="p">)</span> <span class="c1"># 清除聊天记录的按钮</span>
+<span class="n">button_clearhistory</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">clr_history</span><span class="p">)</span> <span class="c1"># 将清除历史记录功能绑定到按钮上</span>
+<span class="n">inp</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(</span> <span class="n">placeholder</span><span class="o">=</span><span class="s1">&#39;Enter text here…&#39;</span><span class="p">)</span> <span class="c1"># 用于用户查询的文本输入小部件</span>
+
+<span class="c1"># 将加载数据库和对话的函数绑定到相应的部件上</span>
+<span class="n">bound_button_load</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">call_load_db</span><span class="p">,</span> <span class="n">button_load</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">clicks</span><span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">convchain</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span> 
+
+<span class="n">jpg_pane</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span> <span class="s1">&#39;./img/convchain.jpg&#39;</span><span class="p">)</span>
+
+<span class="c1"># 使用 Panel 定义界面布局</span>
+<span class="n">tab1</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">inp</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">conversation</span><span class="p">,</span>  <span class="n">loading_indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">tab2</span><span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">get_lquest</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">get_sources</span> <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">tab3</span><span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">get_chats</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">tab4</span><span class="o">=</span><span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span> <span class="n">file_input</span><span class="p">,</span> <span class="n">button_load</span><span class="p">,</span> <span class="n">bound_button_load</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span> <span class="n">button_clearhistory</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="s2">&quot;Clears chat history. Can use to start a new topic&quot;</span> <span class="p">)),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">jpg_pane</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="c1"># 将所有选项卡合并为一个仪表盘</span>
+<span class="n">dashboard</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="s1">&#39;# ChatWithYourData_Bot&#39;</span><span class="p">)),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Tabs</span><span class="p">((</span><span class="s1">&#39;Conversation&#39;</span><span class="p">,</span> <span class="n">tab1</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Database&#39;</span><span class="p">,</span> <span class="n">tab2</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Chat History&#39;</span><span class="p">,</span> <span class="n">tab3</span><span class="p">),(</span><span class="s1">&#39;Configure&#39;</span><span class="p">,</span> <span class="n">tab4</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">dashboard</span>
+</code></pre></div>
+<p>以下截图展示了该机器人的运行情况：</p>
+<p><img alt="" src="../../figures/C4/ChatBot.png" /></p>
+<div align='center'> 图 4.7.3 聊天机器人 </div>
+
+<p>您可以自由使用并修改上述代码，以添加自定义功能。例如，可以修改  <code>load_db</code> 函数和 <code>convchain</code> 方法中的配置，尝试不同的存储器模块和检索器模型。</p>
+<p>此外，<a href="https://panel.holoviz.org/">panel</a> 和 <a href="https://param.holoviz.org/">Param</a> 这两个库提供了丰富的组件和小工具，可以用来扩展和增强图形用户界面。Panel 可以创建交互式的控制面板，Param 可以声明输入参数并生成控件。组合使用可以构建强大的可配置GUI。</p>
+<p>您可以通过创造性地应用这些工具,开发出功能更丰富的对话系统和界面。自定义控件可以实现参数配置、可视化等高级功能。欢迎修改和扩展示例代码,开发出功能更强大、体验更佳的智能对话应用。</p>
+<h2 id="_3">五、英文版<a class="headerlink" href="#_3" title="Permanent link">⚓︎</a></h2>
+<p><strong>1.1 复习</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 加载向量库，其中包含了所有课程材料的 Embedding。</span>
+<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">Chroma</span>
+<span class="kn">from</span> <span class="nn">langchain.embeddings.openai</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
+<span class="kn">import</span> <span class="nn">panel</span> <span class="k">as</span> <span class="nn">pn</span>  <span class="c1"># GUI</span>
+<span class="c1"># pn.extension()</span>
+
+<span class="n">persist_directory</span> <span class="o">=</span> <span class="s1">&#39;docs/chroma/cs229_lectures&#39;</span>
+<span class="n">embedding</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
+<span class="n">vectordb</span> <span class="o">=</span> <span class="n">Chroma</span><span class="p">(</span><span class="n">persist_directory</span><span class="o">=</span><span class="n">persist_directory</span><span class="p">,</span> <span class="n">embedding_function</span><span class="o">=</span><span class="n">embedding</span><span class="p">)</span>
+
+<span class="c1"># 对向量库进行基本的相似度搜索</span>
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;What are major topics for this class?&quot;</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">vectordb</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="n">question</span><span class="p">,</span><span class="n">k</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>3
+</code></pre></div>
+<p>创建一个 LLM</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">llm_name</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">llm</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="s2">&quot;Hello world!&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&#39;Hello there! How can I assist you today?&#39;
+</code></pre></div>
+<p>创建一个基于模板的检索链</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 初始化一个 prompt 模板，创建一个检索 QA 链，然后传入一个问题并得到一个结果。</span>
+<span class="c1"># 构建 prompt</span>
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="n">template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Use the following pieces of context to answer the question at the end. If you don&#39;t know the answer, just say that you don&#39;t know, don&#39;t try to make up an answer. Use three sentences maximum. Keep the answer as concise as possible. Always say &quot;thanks for asking!&quot; at the end of the answer. </span>
+<span class="si">{context}</span>
+<span class="s2">Question: </span><span class="si">{question}</span>
+<span class="s2">Helpful Answer:&quot;&quot;&quot;</span>
+<span class="n">QA_CHAIN_PROMPT</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="p">(</span><span class="n">input_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="s2">&quot;question&quot;</span><span class="p">],</span><span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,)</span>
+
+<span class="c1"># 运行 chain</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span>
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;Is probability a class topic?&quot;</span>
+<span class="n">qa_chain</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_chain_type</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span>
+                                       <span class="n">retriever</span><span class="o">=</span><span class="n">vectordb</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">(),</span>
+                                       <span class="n">return_source_documents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                       <span class="n">chain_type_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="n">QA_CHAIN_PROMPT</span><span class="p">})</span>
+
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">qa_chain</span><span class="p">({</span><span class="s2">&quot;query&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;result&quot;</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Yes, probability is assumed to be a prerequisite for this class. The instructor assumes familiarity with basic probability and statistics, and will go over some of the prerequisites in the discussion sections as a refresher course. Thanks for asking!
+</code></pre></div>
+<p><strong>2.1 记忆</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.memory</span> <span class="kn">import</span> <span class="n">ConversationBufferMemory</span>
+<span class="n">memory</span> <span class="o">=</span> <span class="n">ConversationBufferMemory</span><span class="p">(</span>
+    <span class="n">memory_key</span><span class="o">=</span><span class="s2">&quot;chat_history&quot;</span><span class="p">,</span> <span class="c1"># 与 prompt 的输入变量保持一致。</span>
+    <span class="n">return_messages</span><span class="o">=</span><span class="kc">True</span> <span class="c1"># 将以消息列表的形式返回聊天记录，而不是单个字符串</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>3.1 对话检索链</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">ConversationalRetrievalChain</span>
+<span class="n">retriever</span><span class="o">=</span><span class="n">vectordb</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span>
+<span class="n">qa</span> <span class="o">=</span> <span class="n">ConversationalRetrievalChain</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span>
+    <span class="n">llm</span><span class="p">,</span>
+    <span class="n">retriever</span><span class="o">=</span><span class="n">retriever</span><span class="p">,</span>
+    <span class="n">memory</span><span class="o">=</span><span class="n">memory</span>
+<span class="p">)</span>
+
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;Is probability a class topic?&quot;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">qa</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Q: &quot;</span><span class="p">,</span> <span class="n">question</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A: &quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;answer&#39;</span><span class="p">])</span>
+
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;why are those prerequesites needed?&quot;</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">qa</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">question</span><span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Q: &quot;</span><span class="p">,</span> <span class="n">question</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;A: &quot;</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;answer&#39;</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Q:  Is probability a class topic?
+A:  Yes, probability is a topic that will be assumed to be familiar to students in this class. The instructor assumes that students have familiarity with basic probability and statistics, and that most undergraduate statistics classes will be more than enough.
+Q:  why are those prerequesites needed?
+A:  The reason for requiring familiarity with basic probability and statistics as prerequisites for this class is that the class assumes that students already know what random variables are, what expectation is, what a variance or a random variable is. The class will not spend much time reviewing these concepts, so students are expected to have a basic understanding of them before taking the class.
+</code></pre></div>
+<p><strong>4.1 定义一个聊天机器人</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.embeddings.openai</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span>
+<span class="kn">from</span> <span class="nn">langchain.text_splitter</span> <span class="kn">import</span> <span class="n">CharacterTextSplitter</span><span class="p">,</span> <span class="n">RecursiveCharacterTextSplitter</span>
+<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">DocArrayInMemorySearch</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">TextLoader</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span><span class="p">,</span>  <span class="n">ConversationalRetrievalChain</span>
+<span class="kn">from</span> <span class="nn">langchain.memory</span> <span class="kn">import</span> <span class="n">ConversationBufferMemory</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">TextLoader</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">PyPDFLoader</span>
+
+<span class="k">def</span> <span class="nf">load_db</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">chain_type</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    该函数用于加载 PDF 文件，切分文档，生成文档的嵌入向量，创建向量数据库，定义检索器，并创建聊天机器人实例。</span>
+
+<span class="sd">    参数:</span>
+<span class="sd">    file (str): 要加载的 PDF 文件路径。</span>
+<span class="sd">    chain_type (str): 链类型，用于指定聊天机器人的类型。</span>
+<span class="sd">    k (int): 在检索过程中，返回最相似的 k 个结果。</span>
+
+<span class="sd">    返回:</span>
+<span class="sd">    qa (ConversationalRetrievalChain): 创建的聊天机器人实例。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 载入文档</span>
+    <span class="n">loader</span> <span class="o">=</span> <span class="n">PyPDFLoader</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">documents</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+    <span class="c1"># 切分文档</span>
+    <span class="n">text_splitter</span> <span class="o">=</span> <span class="n">RecursiveCharacterTextSplitter</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">chunk_overlap</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">docs</span> <span class="o">=</span> <span class="n">text_splitter</span><span class="o">.</span><span class="n">split_documents</span><span class="p">(</span><span class="n">documents</span><span class="p">)</span>
+    <span class="c1"># 定义 Embeddings</span>
+    <span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span>
+    <span class="c1"># 根据数据创建向量数据库</span>
+    <span class="n">db</span> <span class="o">=</span> <span class="n">DocArrayInMemorySearch</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+    <span class="c1"># 定义检索器</span>
+    <span class="n">retriever</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">(</span><span class="n">search_type</span><span class="o">=</span><span class="s2">&quot;similarity&quot;</span><span class="p">,</span> <span class="n">search_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">})</span>
+    <span class="c1"># 创建 chatbot 链，Memory 由外部管理</span>
+    <span class="n">qa</span> <span class="o">=</span> <span class="n">ConversationalRetrievalChain</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span>
+        <span class="n">llm</span><span class="o">=</span><span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">llm_name</span><span class="p">,</span> <span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> 
+        <span class="n">chain_type</span><span class="o">=</span><span class="n">chain_type</span><span class="p">,</span> 
+        <span class="n">retriever</span><span class="o">=</span><span class="n">retriever</span><span class="p">,</span> 
+        <span class="n">return_source_documents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">return_generated_question</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">qa</span> 
+
+<span class="kn">import</span> <span class="nn">panel</span> <span class="k">as</span> <span class="nn">pn</span>
+<span class="kn">import</span> <span class="nn">param</span>
+
+<span class="c1"># 用于存储聊天记录、回答、数据库查询和回复</span>
+<span class="k">class</span> <span class="nc">cbfs</span><span class="p">(</span><span class="n">param</span><span class="o">.</span><span class="n">Parameterized</span><span class="p">):</span>
+    <span class="n">chat_history</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">List</span><span class="p">([])</span>
+    <span class="n">answer</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">db_query</span>  <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">String</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">db_response</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">List</span><span class="p">([])</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>  <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">cbfs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">panels</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span> <span class="o">=</span> <span class="s2">&quot;docs/cs229_lectures/MachineLearning-Lecture01.pdf&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">qa</span> <span class="o">=</span> <span class="n">load_db</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span><span class="p">,</span><span class="s2">&quot;stuff&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="c1"># 将文档加载到聊天机器人中</span>
+    <span class="k">def</span> <span class="nf">call_load_db</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        count: 数量</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">file_input</span><span class="o">.</span><span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># 初始化或未指定文件 :</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded File: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_input</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;temp.pdf&quot;</span><span class="p">)</span>  <span class="c1"># 本地副本</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span> <span class="o">=</span> <span class="n">file_input</span><span class="o">.</span><span class="n">filename</span>
+            <span class="n">button_load</span><span class="o">.</span><span class="n">button_style</span><span class="o">=</span><span class="s2">&quot;outline&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">qa</span> <span class="o">=</span> <span class="n">load_db</span><span class="p">(</span><span class="s2">&quot;temp.pdf&quot;</span><span class="p">,</span> <span class="s2">&quot;stuff&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+            <span class="n">button_load</span><span class="o">.</span><span class="n">button_style</span><span class="o">=</span><span class="s2">&quot;solid&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clr_history</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded File: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">loaded_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 处理对话链</span>
+    <span class="k">def</span> <span class="nf">convchain</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        query: 用户的查询</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">query</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="s1">&#39;User:&#39;</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)),</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">qa</span><span class="p">({</span><span class="s2">&quot;question&quot;</span><span class="p">:</span> <span class="n">query</span><span class="p">,</span> <span class="s2">&quot;chat_history&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="o">.</span><span class="n">extend</span><span class="p">([(</span><span class="n">query</span><span class="p">,</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;answer&quot;</span><span class="p">])])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_query</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;generated_question&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db_response</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;source_documents&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">answer</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;answer&#39;</span><span class="p">]</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">panels</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="s1">&#39;User:&#39;</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">)),</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="s1">&#39;ChatBot:&#39;</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">answer</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">}))</span>
+        <span class="p">])</span>
+        <span class="n">inp</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>  <span class="c1"># 清除时清除装载指示器</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">panels</span><span class="p">,</span><span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 获取最后发送到数据库的问题</span>
+    <span class="nd">@param</span><span class="o">.</span><span class="n">depends</span><span class="p">(</span><span class="s1">&#39;db_query &#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_lquest</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_query</span> <span class="p">:</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+                <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Last question to DB:&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">})),</span>
+                <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s2">&quot;no DB accesses so far&quot;</span><span class="p">))</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DB query:&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">})),</span>
+            <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db_query</span> <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 获取数据库返回的源文件</span>
+    <span class="nd">@param</span><span class="o">.</span><span class="n">depends</span><span class="p">(</span><span class="s1">&#39;db_response&#39;</span><span class="p">,</span> <span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_response</span><span class="p">:</span>
+            <span class="k">return</span> 
+        <span class="n">rlist</span><span class="o">=</span><span class="p">[</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Result of DB lookup:&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">}))]</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">db_response</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">doc</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="o">*</span><span class="n">rlist</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 获取当前聊天记录</span>
+    <span class="nd">@param</span><span class="o">.</span><span class="n">depends</span><span class="p">(</span><span class="s1">&#39;convchain&#39;</span><span class="p">,</span> <span class="s1">&#39;clr_history&#39;</span><span class="p">)</span> 
+    <span class="k">def</span> <span class="nf">get_chats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="s2">&quot;No History Yet&quot;</span><span class="p">)),</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">rlist</span><span class="o">=</span><span class="p">[</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Current Chat History variable&quot;</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#F6F6F6&#39;</span><span class="p">}))]</span>
+        <span class="k">for</span> <span class="n">exchange</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span><span class="p">:</span>
+            <span class="n">rlist</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Str</span><span class="p">(</span><span class="n">exchange</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">pn</span><span class="o">.</span><span class="n">WidgetBox</span><span class="p">(</span><span class="o">*</span><span class="n">rlist</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span> <span class="n">scroll</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 清除聊天记录</span>
+    <span class="k">def</span> <span class="nf">clr_history</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">chat_history</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">return</span> 
+</code></pre></div>
+<p><strong>4.2 创建聊天机器人</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 初始化聊天机器人</span>
+<span class="n">cb</span> <span class="o">=</span> <span class="n">cbfs</span><span class="p">()</span> 
+
+<span class="c1"># 定义界面的小部件</span>
+<span class="n">file_input</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">FileInput</span><span class="p">(</span><span class="n">accept</span><span class="o">=</span><span class="s1">&#39;.pdf&#39;</span><span class="p">)</span> <span class="c1"># PDF 文件的文件输入小部件</span>
+<span class="n">button_load</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Load DB&quot;</span><span class="p">,</span> <span class="n">button_type</span><span class="o">=</span><span class="s1">&#39;primary&#39;</span><span class="p">)</span> <span class="c1"># 加载数据库的按钮</span>
+<span class="n">button_clearhistory</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">Button</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Clear History&quot;</span><span class="p">,</span> <span class="n">button_type</span><span class="o">=</span><span class="s1">&#39;warning&#39;</span><span class="p">)</span> <span class="c1"># 清除聊天记录的按钮</span>
+<span class="n">button_clearhistory</span><span class="o">.</span><span class="n">on_click</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">clr_history</span><span class="p">)</span> <span class="c1"># 将清除历史记录功能绑定到按钮上</span>
+<span class="n">inp</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">widgets</span><span class="o">.</span><span class="n">TextInput</span><span class="p">(</span> <span class="n">placeholder</span><span class="o">=</span><span class="s1">&#39;Enter text here…&#39;</span><span class="p">)</span> <span class="c1"># 用于用户查询的文本输入小部件</span>
+
+<span class="c1"># 将加载数据库和对话的函数绑定到相应的部件上</span>
+<span class="n">bound_button_load</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">call_load_db</span><span class="p">,</span> <span class="n">button_load</span><span class="o">.</span><span class="n">param</span><span class="o">.</span><span class="n">clicks</span><span class="p">)</span>
+<span class="n">conversation</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">convchain</span><span class="p">,</span> <span class="n">inp</span><span class="p">)</span> 
+
+<span class="n">jpg_pane</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span> <span class="s1">&#39;./img/convchain.jpg&#39;</span><span class="p">)</span>
+
+<span class="c1"># 使用 Panel 定义界面布局</span>
+<span class="n">tab1</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">inp</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">conversation</span><span class="p">,</span>  <span class="n">loading_indicator</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">tab2</span><span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">get_lquest</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">get_sources</span> <span class="p">),</span>
+<span class="p">)</span>
+<span class="n">tab3</span><span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">panel</span><span class="p">(</span><span class="n">cb</span><span class="o">.</span><span class="n">get_chats</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+<span class="p">)</span>
+<span class="n">tab4</span><span class="o">=</span><span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span> <span class="n">file_input</span><span class="p">,</span> <span class="n">button_load</span><span class="p">,</span> <span class="n">bound_button_load</span><span class="p">),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span> <span class="n">button_clearhistory</span><span class="p">,</span> <span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="s2">&quot;Clears chat history. Can use to start a new topic&quot;</span> <span class="p">)),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">Divider</span><span class="p">(),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">jpg_pane</span><span class="o">.</span><span class="n">clone</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="mi">400</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="c1"># 将所有选项卡合并为一个仪表盘</span>
+<span class="n">dashboard</span> <span class="o">=</span> <span class="n">pn</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Row</span><span class="p">(</span><span class="n">pn</span><span class="o">.</span><span class="n">pane</span><span class="o">.</span><span class="n">Markdown</span><span class="p">(</span><span class="s1">&#39;# ChatWithYourData_Bot&#39;</span><span class="p">)),</span>
+    <span class="n">pn</span><span class="o">.</span><span class="n">Tabs</span><span class="p">((</span><span class="s1">&#39;Conversation&#39;</span><span class="p">,</span> <span class="n">tab1</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Database&#39;</span><span class="p">,</span> <span class="n">tab2</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;Chat History&#39;</span><span class="p">,</span> <span class="n">tab3</span><span class="p">),(</span><span class="s1">&#39;Configure&#39;</span><span class="p">,</span> <span class="n">tab4</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="n">dashboard</span>
+</code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      最后更新:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+        <br>
+        创建日期:
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../6.%20%E9%97%AE%E7%AD%94%20Question%20Answering/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第六章 问答">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第六章 问答
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../8.%20%E6%80%BB%E7%BB%93%20Summary/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第八章、总结">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第八章、总结
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Ean Yang
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/YQisme" target="_blank" rel="noopener" title="github主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://space.bilibili.com/244185393?spm_id_from=333.788.0.0" target="_blank" rel="noopener" title="b站主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M488.6 104.1c16.7 18.1 24.4 39.7 23.3 65.7v202.4c-.4 26.4-9.2 48.1-26.5 65.1-17.2 17-39.1 25.9-65.5 26.7H92.02c-26.45-.8-48.21-9.8-65.28-27.2C9.682 419.4.767 396.5 0 368.2V169.8c.767-26 9.682-47.6 26.74-65.7C43.81 87.75 65.57 78.77 92.02 78h29.38L96.05 52.19c-5.75-5.73-8.63-13-8.63-21.79 0-8.8 2.88-16.06 8.63-21.797C101.8 2.868 109.1 0 117.9 0s16.1 2.868 21.9 8.603L213.1 78h88l74.5-69.397C381.7 2.868 389.2 0 398 0c8.8 0 16.1 2.868 21.9 8.603 5.7 5.737 8.6 12.997 8.6 21.797 0 8.79-2.9 16.06-8.6 21.79L394.6 78h29.3c26.4.77 48 9.75 64.7 26.1zm-38.8 69.7c-.4-9.6-3.7-17.4-10.7-23.5-5.2-6.1-14-9.4-22.7-9.8H96.05c-9.59.4-17.45 3.7-23.58 9.8-6.14 6.1-9.4 13.9-9.78 23.5v194.4c0 9.2 3.26 17 9.78 23.5s14.38 9.8 23.58 9.8H416.4c9.2 0 17-3.3 23.3-9.8 6.3-6.5 9.7-14.3 10.1-23.5V173.8zm-264.3 42.7c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.2 6.3-14 9.5-23.6 9.5-9.6 0-17.5-3.2-23.6-9.5-6.1-6.3-9.4-14-9.8-23.2v-33.3c.4-9.1 3.8-16.9 10.1-23.2 6.3-6.3 13.2-9.6 23.3-10 9.2.4 17 3.7 23.3 10zm191.5 0c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.1 6.3-14 9.5-23.6 9.5-9.6 0-17.4-3.2-23.6-9.5-7-6.3-9.4-14-9.7-23.2v-33.3c.3-9.1 3.7-16.9 10-23.2 6.3-6.3 14.1-9.6 23.3-10 9.2.4 17 3.7 23.3 10z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://eanyang7.com" target="_blank" rel="noopener" title="个人主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M112 48a48 48 0 1 1 96 0 48 48 0 1 1-96 0zm40 304v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V256.9l-28.6 47.6c-9.1 15.1-28.8 20-43.9 10.9s-20-28.8-10.9-43.9l58.3-97c17.4-28.9 48.6-46.6 82.3-46.6h29.7c33.7 0 64.9 17.7 82.3 46.6l58.3 97c9.1 15.1 4.2 34.8-10.9 43.9s-34.8 4.2-43.9-10.9L232 256.9V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V352h-16z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.prune", "navigation.top", "toc.follow", "header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

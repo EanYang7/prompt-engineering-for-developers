@@ -1,0 +1,1563 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="面向开发者的 LLM 入门教程，吴恩达大模型系列课程中文版">
+      
+      
+        <meta name="author" content="Ean Yang">
+      
+      
+        <link rel="canonical" href="https://eanyang7.github.io/prompt-engineering-for-developers/03-%E4%BD%BF%E7%94%A8%20LangChain%20%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/5.%20%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%9A%84%E9%97%AE%E7%AD%94%20Question%20and%20Answer/">
+      
+      
+        <link rel="prev" href="../4.%20%E6%A8%A1%E5%9E%8B%E9%93%BE%20Chains/">
+      
+      
+        <link rel="next" href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/">
+      
+      
+      <link rel="icon" href="../../assets/favicon.jpg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.12">
+    
+    
+      
+        <title>第五章 基于文档的问答 - 面向开发者的 LLM 入门教程</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-header__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            面向开发者的 LLM 入门教程
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第五章 基于文档的问答
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple"  aria-label="切换为暗黑模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换为暗黑模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="red"  aria-label="切换为浅色模式"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="切换为浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-nav__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    面向开发者的 LLM 入门教程
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    面向开发者的 LLM 入门课程
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%89%8D%E8%A8%80/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    前言
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    环境配置
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../01-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    01 面向开发者的提示工程
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../02-%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%20ChatGPT%20%E7%9A%84%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    02 搭建基于 ChatGPT 的问答系统
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    03 使用 LangChain 开发应用程序
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            03 使用 LangChain 开发应用程序
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第一章 简介
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.%20%E6%A8%A1%E5%9E%8B%E3%80%81%E6%8F%90%E7%A4%BA%E5%92%8C%E8%A7%A3%E6%9E%90%E5%99%A8%20Models%2C%20Prompts%20and%20Output%20Parsers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第二章 模型，提示和输出解释器
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.%20%E5%82%A8%E5%AD%98%20Memory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三章 储存
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.%20%E6%A8%A1%E5%9E%8B%E9%93%BE%20Chains/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第四章 模型链
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    第五章 基于文档的问答
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    第五章 基于文档的问答
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、直接使用向量储存查询
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、直接使用向量储存查询">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 导入数据
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 基本文档加载器创建向量存储
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 查询创建的向量存储
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、 结合表征模型和向量存储
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、 结合表征模型和向量存储">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 导入数据
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 文本向量表征模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 基于向量表征创建并查询向量存储
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 使用查询结果构造提示来回答问题
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 使用检索问答链来回答问题
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      英文版提示
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第六章 评估
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7.%20%E4%BB%A3%E7%90%86%20Agent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第七章 代理
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8.%20%E6%80%BB%E7%BB%93%20Conclusion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第八章 总结
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../readme/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三部分 使用 LangChain 开发应用程序
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../04-%E4%BD%BF%E7%94%A8%20LangChain%20%E8%AE%BF%E9%97%AE%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    04 使用 LangChain 访问个人数据
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、直接使用向量储存查询
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、直接使用向量储存查询">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 导入数据
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 基本文档加载器创建向量存储
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 查询创建的向量存储
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、 结合表征模型和向量存储
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、 结合表征模型和向量存储">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 导入数据
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 文本向量表征模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 基于向量表征创建并查询向量存储
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.4 使用查询结果构造提示来回答问题
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.5 使用检索问答链来回答问题
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      英文版提示
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/5. 基于文档的问答 Question and Answer.md" title="编辑此页" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/5. 基于文档的问答 Question and Answer.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/></svg>
+    </a>
+  
+
+
+<h1 id="_1">第五章 基于文档的问答<a class="headerlink" href="#_1" title="Permanent link">⚓︎</a></h1>
+<p>使用大语言模型构建一个能够回答关于给定文档和文档集合的问答系统是一种非常实用和有效的应用场景。<strong>与仅依赖模型预训练知识不同，这种方法可以进一步整合用户自有数据，实现更加个性化和专业的问答服务</strong>。例如,我们可以收集某公司的内部文档、产品说明书等文字资料，导入问答系统中。然后用户针对这些文档提出问题时，系统可以先在文档中检索相关信息，再提供给语言模型生成答案。</p>
+<p>这样，语言模型不仅利用了自己的通用知识，还可以充分运用外部输入文档的专业信息来回答用户问题，显著提升答案的质量和适用性。构建这类基于外部文档的问答系统，可以让语言模型更好地服务于具体场景，而不是停留在通用层面。这种灵活应用语言模型的方法值得在实际使用中推广。</p>
+<p>基于文档问答的这个过程，我们会涉及 LangChain 中的其他组件，比如：嵌入模型（Embedding Models)和向量储存(Vector Stores)，本章让我们一起来学习这部分的内容。</p>
+<h2 id="_2">一、直接使用向量储存查询<a class="headerlink" href="#_2" title="Permanent link">⚓︎</a></h2>
+<h3 id="11">1.1 导入数据<a class="headerlink" href="#11" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">RetrievalQA</span>  <span class="c1">#检索QA链，在文档上进行检索</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>  <span class="c1">#openai模型</span>
+<span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">CSVLoader</span> <span class="c1">#文档加载器，采用csv格式存储</span>
+<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">DocArrayInMemorySearch</span>  <span class="c1">#向量存储</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">display</span><span class="p">,</span> <span class="n">Markdown</span> <span class="c1">#在jupyter显示信息的工具</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;../data/OutdoorClothingCatalog_1000.csv&#39;</span>
+
+<span class="c1"># 使用langchain文档加载器对数据进行导入</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">CSVLoader</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+
+<span class="c1"># 使用pandas导入数据，用以查看</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file</span><span class="p">,</span><span class="n">usecols</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div>
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>name</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Women's Campside Oxfords</td>
+      <td>This ultracomfortable lace-to-toe Oxford boast...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>Recycled Waterhog Dog Mat, Chevron Weave</td>
+      <td>Protect your floors from spills and splashing ...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>Infant and Toddler Girls' Coastal Chill Swimsu...</td>
+      <td>She'll love the bright colors, ruffles and exc...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>Refresh Swimwear, V-Neck Tankini Contrasts</td>
+      <td>Whether you're going for a swim or heading out...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>EcoFlex 3L Storm Pants</td>
+      <td>Our new TEK O2 technology makes our four-seaso...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>数据是字段为 <code>name</code> 和 <code>description</code> 的文本数据：</p>
+<p>可以看到，导入的数据集为一个户外服装的 CSV 文件，接下来我们将在语言模型中使用它。</p>
+<h3 id="12">1.2 基本文档加载器创建向量存储<a class="headerlink" href="#12" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">#导入向量存储索引创建器</span>
+<span class="kn">from</span> <span class="nn">langchain.indexes</span> <span class="kn">import</span> <span class="n">VectorstoreIndexCreator</span> 
+
+<span class="c1"># 创建指定向量存储类, 创建完成后，从加载器中调用, 通过文档加载器列表加载</span>
+<span class="n">index</span> <span class="o">=</span> <span class="n">VectorstoreIndexCreator</span><span class="p">(</span><span class="n">vectorstore_cls</span><span class="o">=</span><span class="n">DocArrayInMemorySearch</span><span class="p">)</span><span class="o">.</span><span class="n">from_loaders</span><span class="p">([</span><span class="n">loader</span><span class="p">])</span>
+</code></pre></div>
+<h3 id="13">1.3 查询创建的向量存储<a class="headerlink" href="#13" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">query</span> <span class="o">=</span><span class="s2">&quot;请用markdown表格的方式列出所有具有防晒功能的衬衫，对每件衬衫描述进行总结&quot;</span>
+
+<span class="c1">#使用索引查询创建一个响应，并传入这个查询</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<span class="c1">#查看查询返回的内容</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Men's Tropical Plaid Short-Sleeve Shirt</td>
+<td>UPF 50+ rated sun protection, 100% polyester fabric, wrinkle-resistant, front and back cape venting, two front bellows pockets</td>
+</tr>
+<tr>
+<td>Men's Plaid Tropic Shirt, Short-Sleeve</td>
+<td>UPF 50+ rated sun protection, 52% polyester and 48% nylon fabric, wrinkle-free, quickly evaporates perspiration, front and back cape venting, two front bellows pockets</td>
+</tr>
+<tr>
+<td>Girls' Ocean Breeze Long-Sleeve Stripe Shirt</td>
+<td>UPF 50+ rated sun protection, Nylon Lycra®-elastane blend fabric, quick-drying and fade-resistant, holds shape well, durable seawater-resistant fabric retains its color</td>
+</tr>
+</tbody>
+</table>
+<p>在上面我们得到了一个 Markdown 表格，其中包含所有带有防晒衣的衬衫的 <code>名称(Name)</code> 和 <code>描述(Description)</code> ，其中描述是语言模型总结过的结果。</p>
+<h2 id="_3">二、 结合表征模型和向量存储<a class="headerlink" href="#_3" title="Permanent link">⚓︎</a></h2>
+<p>由于语言模型的上下文长度限制，直接处理长文档具有困难。为实现对长文档的问答，我们可以引入向量嵌入(Embeddings)和向量存储(Vector Store)等技术：</p>
+<p>首先，<strong>使用文本嵌入(Embeddings)算法对文档进行向量化</strong>，使语义相似的文本片段具有接近的向量表示。其次，<strong>将向量化的文档切分为小块，存入向量数据库</strong>，这个流程正是创建索引(index)的过程。向量数据库对各文档片段进行索引，支持快速检索。这样，当用户提出问题时，可以先将问题转换为向量，在数据库中快速找到语义最相关的文档片段。然后将这些文档片段与问题一起传递给语言模型，生成回答。</p>
+<p>通过嵌入向量化和索引技术，我们实现了对长文档的切片检索和问答。这种流程克服了语言模型的上下文限制，可以构建处理大规模文档的问答系统。</p>
+<h3 id="21">2.1 导入数据<a class="headerlink" href="#21" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">#创建一个文档加载器，通过csv格式加载</span>
+<span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;../data/OutdoorClothingCatalog_1000.csv&#39;</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">CSVLoader</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+
+<span class="c1">#查看单个文档，每个文档对应于CSV中的一行数据</span>
+<span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>Document(page_content=&quot;: 0\nname: Women&#39;s Campside Oxfords\ndescription: This ultracomfortable lace-to-toe Oxford boasts a super-soft canvas, thick cushioning, and quality construction for a broken-in feel from the first time you put them on. \n\nSize &amp; Fit: Order regular shoe size. For half sizes not offered, order up to next whole size. \n\nSpecs: Approx. weight: 1 lb.1 oz. per pair. \n\nConstruction: Soft canvas material for a broken-in feel and look. Comfortable EVA innersole with Cleansport NXT® antimicrobial odor control. Vintage hunt, fish and camping motif on innersole. Moderate arch contour of innersole. EVA foam midsole for cushioning and support. Chain-tread-inspired molded rubber outsole with modified chain-tread pattern. Imported. \n\nQuestions? Please contact us for any inquiries.&quot;, metadata={&#39;source&#39;: &#39;../data/OutdoorClothingCatalog_1000.csv&#39;, &#39;row&#39;: 0})
+</code></pre></div>
+<h3 id="22">2.2 文本向量表征模型<a class="headerlink" href="#22" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">#使用OpenAIEmbedding类</span>
+<span class="kn">from</span> <span class="nn">langchain.embeddings</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span> 
+
+<span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span> 
+
+<span class="c1">#因为文档比较短了，所以这里不需要进行任何分块,可以直接进行向量表征</span>
+<span class="c1">#使用初始化OpenAIEmbedding实例上的查询方法embed_query为文本创建向量表征</span>
+<span class="n">embed</span> <span class="o">=</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">embed_query</span><span class="p">(</span><span class="s2">&quot;你好呀，我的名字叫小可爱&quot;</span><span class="p">)</span>
+
+<span class="c1">#查看得到向量表征的长度</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m向量表征的长度: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">embed</span><span class="p">))</span>
+
+<span class="c1">#每个元素都是不同的数字值，组合起来就是文本的向量表征</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m向量表征前5个元素: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">embed</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>向量表征的长度:  
+ 1536
+
+向量表征前5个元素:  
+ [-0.019283676849006164, -0.006842594710511029, -0.007344046732916966, -0.024501312942119265, -0.026608679897592472]
+</code></pre></div>
+<h3 id="23">2.3 基于向量表征创建并查询向量存储<a class="headerlink" href="#23" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 将刚才创建文本向量表征(embeddings)存储在向量存储(vector store)中</span>
+<span class="c1"># 使用DocArrayInMemorySearch类的from_documents方法来实现</span>
+<span class="c1"># 该方法接受文档列表以及向量表征模型作为输入</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">DocArrayInMemorySearch</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+
+<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;请推荐一件具有防晒功能的衬衫&quot;</span>
+<span class="c1">#使用上面的向量存储来查找与传入查询类似的文本，得到一个相似文档列表</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m返回文档的个数: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m第一个文档: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>返回文档的个数:  
+ 4
+
+第一个文档:  
+ page_content=&quot;: 535\nname: Men&#39;s TropicVibe Shirt, Short-Sleeve\ndescription: This Men’s sun-protection shirt with built-in UPF 50+ has the lightweight feel you want and the coverage you need when the air is hot and the UV rays are strong. Size &amp; Fit: Traditional Fit: Relaxed through the chest, sleeve and waist. Fabric &amp; Care: Shell: 71% Nylon, 29% Polyester. Lining: 100% Polyester knit mesh. UPF 50+ rated – the highest rated sun protection possible. Machine wash and dry. Additional Features: Wrinkle resistant. Front and back cape venting lets in cool breezes. Two front bellows pockets. Imported.\n\nSun Protection That Won&#39;t Wear Off: Our high-performance fabric provides SPF 50+ sun protection, blocking 98% of the sun&#39;s harmful rays.&quot; metadata={&#39;source&#39;: &#39;../data/OutdoorClothingCatalog_1000.csv&#39;, &#39;row&#39;: 535}
+</code></pre></div>
+<p>我们可以看到一个返回了四个结果。输出的第一结果是一件关于防晒的衬衫，满足我们查询的要求：<code>请推荐一件具有防晒功能的衬衫</code></p>
+<h3 id="24">2.4 使用查询结果构造提示来回答问题<a class="headerlink" href="#24" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">#导入大语言模型, 这里使用默认模型gpt-3.5-turbo会出现504服务器超时，</span>
+<span class="c1">#因此使用gpt-3.5-turbo-0301</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo-0301&quot;</span><span class="p">,</span><span class="n">temperature</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> 
+
+<span class="c1">#合并获得的相似文档内容</span>
+<span class="n">qdocs</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">docs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">page_content</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))])</span>  
+
+
+<span class="c1">#将合并的相似文档内容后加上问题（question）输入到 `llm.call_as_llm`中</span>
+<span class="c1">#这里问题是：以Markdown表格的方式列出所有具有防晒功能的衬衫并总结 </span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">call_as_llm</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">qdocs</span><span class="si">}</span><span class="s2">问题：请用markdown表格的方式列出所有具有防晒功能的衬衫，对每件衬衫描述进行总结&quot;</span><span class="p">)</span> 
+
+<span class="n">display</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>衣服名称</th>
+<th>描述总结</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Men's TropicVibe Shirt, Short-Sleeve</td>
+<td>男士短袖衬衫，内置UPF 50+防晒功能，轻盈舒适，前后通风口，两个前口袋，防皱，最高级别的防晒保护。</td>
+</tr>
+<tr>
+<td>Men's Tropical Plaid Short-Sleeve Shirt</td>
+<td>男士短袖衬衫，UPF 50+防晒，100%聚酯纤维，防皱，前后通风口，两个前口袋，最高级别的防晒保护。</td>
+</tr>
+<tr>
+<td>Men's Plaid Tropic Shirt, Short-Sleeve</td>
+<td>男士短袖衬衫，UPF 50+防晒，52%聚酯纤维和48%尼龙，防皱，前后通风口，两个前口袋，最高级别的防晒保护。</td>
+</tr>
+<tr>
+<td>Girls' Ocean Breeze Long-Sleeve Stripe Shirt</td>
+<td>女孩长袖衬衫，UPF 50+防晒，尼龙Lycra®-弹性纤维混纺，快干，耐褪色，防水，最高级别的防晒保护，适合与我们的泳衣系列搭配。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="25">2.5 使用检索问答链来回答问题<a class="headerlink" href="#25" title="Permanent link">⚓︎</a></h3>
+<p>通过LangChain创建一个检索问答链，对检索到的文档进行问题回答。检索问答链的输入包含以下
+- <code>llm</code>: 语言模型，进行文本生成
+- <code>chain_type</code>: 传入链类型，这里使用stuff，将所有查询得到的文档组合成一个文档传入下一步。其他的方式包括：
+    -  Map Reduce： 将所有块与问题一起传递给语言模型，获取回复，使用另一个语言模型调用将所有单独的回复总结成最终答案，它可以在任意数量的文档上运行。可以并行处理单个问题，同时也需要更多的调用。它将所有文档视为独立的
+    - Refine： 用于循环许多文档，际上是迭代的，建立在先前文档的答案之上，非常适合前后因果信息并随时间逐步构建答案，依赖于先前调用的结果。它通常需要更长的时间，并且基本上需要与Map Reduce一样多的调用
+    - Map Re-rank： 对每个文档进行单个语言模型调用，要求它返回一个分数，选择最高分，这依赖于语言模型知道分数应该是什么，需要告诉它，如果它与文档相关，则应该是高分，并在那里精细调整说明，可以批量处理它们相对较快，但是更加昂贵</p>
+<p><img alt="" src="../../figures/C3/3_additional%20methods.png" /></p>
+<div align='center'>图 3.5 检索问答链</div>
+
+<ul>
+<li><code>retriever</code>:检索器</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1">#基于向量储存，创建检索器</span>
+<span class="n">retriever</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span> 
+
+<span class="n">qa_stuff</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_chain_type</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> 
+    <span class="n">chain_type</span><span class="o">=</span><span class="s2">&quot;stuff&quot;</span><span class="p">,</span> 
+    <span class="n">retriever</span><span class="o">=</span><span class="n">retriever</span><span class="p">,</span> 
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1">#创建一个查询并在此查询上运行链</span>
+<span class="n">query</span> <span class="o">=</span>  <span class="s2">&quot;请用markdown表格的方式列出所有具有防晒功能的衬衫，对每件衬衫描述进行总结&quot;</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">qa_stuff</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="n">response</span><span class="p">))</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new RetrievalQA chain...
+
+&gt; Finished chain.
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>名称</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>618</td>
+<td>Men's Tropical Plaid Short-Sleeve Shirt</td>
+<td>100%聚酯纤维制成，轻便，防皱，前后背部有通风口，两个前面的褶皱口袋，UPF 50+防晒等级，可阻挡98%的紫外线</td>
+</tr>
+<tr>
+<td>374</td>
+<td>Men's Plaid Tropic Shirt, Short-Sleeve</td>
+<td>52%聚酯纤维和48%尼龙制成，轻便，防皱，前后背部有通风口，两个前面的褶皱口袋，UPF 50+防晒等级，可阻挡98%的紫外线</td>
+</tr>
+<tr>
+<td>535</td>
+<td>Men's TropicVibe Shirt, Short-Sleeve</td>
+<td>71%尼龙和29%聚酯纤维制成，轻便，防皱，前后背部有通风口，两个前面的褶皱口袋，UPF 50+防晒等级，可阻挡98%的紫外线</td>
+</tr>
+<tr>
+<td>293</td>
+<td>Girls' Ocean Breeze Long-Sleeve Stripe Shirt</td>
+<td>尼龙Lycra®-弹性纤维混纺，长袖，UPF 50+防晒等级，可阻挡98%的紫外线，快干，耐褪色，可与我们的泳衣系列轻松搭配</td>
+</tr>
+</tbody>
+</table>
+<p>总结：这些衬衫都具有防晒功能，防晒等级为UPF 50+，可阻挡98%的紫外线。它们都是轻便的，防皱的，有前后背部通风口和前面的褶皱口袋。其中女孩的长袖条纹衬衫是由尼龙Lycra®-弹性纤维混纺制成，快干，耐褪色，可与泳衣系列轻松搭配。</p>
+<p>可以看到 2.5 和 2.6 部分的这两个方式返回相同的结果。</p>
+<h2 id="_4">英文版提示<a class="headerlink" href="#_4" title="Permanent link">⚓︎</a></h2>
+<p><strong>1. 直接使用向量储存查询</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">CSVLoader</span> 
+<span class="kn">from</span> <span class="nn">langchain.indexes</span> <span class="kn">import</span> <span class="n">VectorstoreIndexCreator</span>
+
+<span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;../data/OutdoorClothingCatalog_1000.csv&#39;</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">CSVLoader</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+
+<span class="n">index</span> <span class="o">=</span> <span class="n">VectorstoreIndexCreator</span><span class="p">(</span><span class="n">vectorstore_cls</span><span class="o">=</span><span class="n">DocArrayInMemorySearch</span><span class="p">)</span><span class="o">.</span><span class="n">from_loaders</span><span class="p">([</span><span class="n">loader</span><span class="p">])</span>
+
+<span class="n">query</span> <span class="o">=</span><span class="s2">&quot;Please list all your shirts with sun protection </span><span class="se">\</span>
+<span class="s2">in a table in markdown and summarize each one.&quot;</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<span class="n">display</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Men's Tropical Plaid Short-Sleeve Shirt</td>
+<td>UPF 50+ rated, 100% polyester, wrinkle-resistant, front and back cape venting, two front bellows pockets</td>
+</tr>
+<tr>
+<td>Men's Plaid Tropic Shirt, Short-Sleeve</td>
+<td>UPF 50+ rated, 52% polyester and 48% nylon, machine washable and dryable, front and back cape venting, two front bellows pockets</td>
+</tr>
+<tr>
+<td>Men's TropicVibe Shirt, Short-Sleeve</td>
+<td>UPF 50+ rated, 71% Nylon, 29% Polyester, 100% Polyester knit mesh, machine wash and dry, front and back cape venting, two front bellows pockets</td>
+</tr>
+<tr>
+<td>Sun Shield Shirt by</td>
+<td>UPF 50+ rated, 78% nylon, 22% Lycra Xtra Life fiber, handwash, line dry, wicks moisture, fits comfortably over swimsuit, abrasion resistant</td>
+</tr>
+</tbody>
+</table>
+<p>All four shirts provide UPF 50+ sun protection, blocking 98% of the sun's harmful rays. The Men's Tropical Plaid Short-Sleeve Shirt is made of 100% polyester and is wrinkle-resistant</p>
+<p><strong>2. 结合表征模型和向量存储</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.document_loaders</span> <span class="kn">import</span> <span class="n">CSVLoader</span> 
+<span class="kn">from</span> <span class="nn">langchain.embeddings</span> <span class="kn">import</span> <span class="n">OpenAIEmbeddings</span> 
+<span class="kn">from</span> <span class="nn">langchain.vectorstores</span> <span class="kn">import</span> <span class="n">DocArrayInMemorySearch</span>  
+
+
+<span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span> 
+<span class="n">embed</span> <span class="o">=</span> <span class="n">embeddings</span><span class="o">.</span><span class="n">embed_query</span><span class="p">(</span><span class="s2">&quot;Hi my name is Harrison&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m向量表征的长度: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">embed</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m向量表征前5个元素: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">embed</span><span class="p">[:</span><span class="mi">5</span><span class="p">])</span>
+
+<span class="n">file</span> <span class="o">=</span> <span class="s1">&#39;../data/OutdoorClothingCatalog_1000.csv&#39;</span>
+<span class="n">loader</span> <span class="o">=</span> <span class="n">CSVLoader</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file</span><span class="p">)</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">()</span>
+<span class="n">embeddings</span> <span class="o">=</span> <span class="n">OpenAIEmbeddings</span><span class="p">()</span> 
+<span class="n">db</span> <span class="o">=</span> <span class="n">DocArrayInMemorySearch</span><span class="o">.</span><span class="n">from_documents</span><span class="p">(</span><span class="n">docs</span><span class="p">,</span> <span class="n">embeddings</span><span class="p">)</span>
+
+<span class="n">query</span> <span class="o">=</span> <span class="s2">&quot;Please suggest a shirt with sunblocking&quot;</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">similarity_search</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m返回文档的个数: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m第一个文档: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+
+<span class="c1"># 使用查询结果构造提示来回答问题</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="s2">&quot;gpt-3.5-turbo-0301&quot;</span><span class="p">,</span><span class="n">temperature</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">)</span> 
+
+<span class="n">qdocs</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">docs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">page_content</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))])</span>  
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">llm</span><span class="o">.</span><span class="n">call_as_llm</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">qdocs</span><span class="si">}</span><span class="s2"> Question: Please list all your </span><span class="se">\</span>
+<span class="s2">shirts with sun protection in a table in markdown and summarize each one.&quot;</span><span class="p">)</span> 
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m使用查询结果构造提示来回答问题: </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
+
+
+<span class="c1"># 使用检索问答链来回答问题</span>
+<span class="n">retriever</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">as_retriever</span><span class="p">()</span> 
+
+<span class="n">qa_stuff</span> <span class="o">=</span> <span class="n">RetrievalQA</span><span class="o">.</span><span class="n">from_chain_type</span><span class="p">(</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> 
+    <span class="n">chain_type</span><span class="o">=</span><span class="s2">&quot;stuff&quot;</span><span class="p">,</span> 
+    <span class="n">retriever</span><span class="o">=</span><span class="n">retriever</span><span class="p">,</span> 
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+
+<span class="n">query</span> <span class="o">=</span>  <span class="s2">&quot;Please list all your shirts with sun protection in a table </span><span class="se">\</span>
+<span class="s2">in markdown and summarize each one.&quot;</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">qa_stuff</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\033</span><span class="s2">[32m 使用检索问答链来回答问题： </span><span class="se">\033</span><span class="s2">[0m </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">Markdown</span><span class="p">(</span><span class="n">response</span><span class="p">))</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>向量表征的长度:  
+ 1536
+
+向量表征前5个元素:  
+ [-0.021913960932078383, 0.006774206755842609, -0.018190348816400977, -0.039148249368104494, -0.014089343366938917]
+
+返回文档的个数:  
+ 4
+
+第一个文档:  
+ page_content=&#39;: 255\nname: Sun Shield Shirt by\ndescription: &quot;Block the sun, not the fun – our high-performance sun shirt is guaranteed to protect from harmful UV rays. \n\nSize &amp; Fit: Slightly Fitted: Softly shapes the body. Falls at hip.\n\nFabric &amp; Care: 78% nylon, 22% Lycra Xtra Life fiber. UPF 50+ rated – the highest rated sun protection possible. Handwash, line dry.\n\nAdditional Features: Wicks moisture for quick-drying comfort. Fits comfortably over your favorite swimsuit. Abrasion resistant for season after season of wear. Imported.\n\nSun Protection That Won\&#39;t Wear Off\nOur high-performance fabric provides SPF 50+ sun protection, blocking 98% of the sun\&#39;s harmful rays. This fabric is recommended by The Skin Cancer Foundation as an effective UV protectant.&#39; metadata={&#39;source&#39;: &#39;../data/OutdoorClothingCatalog_1000.csv&#39;, &#39;row&#39;: 255}
+
+使用查询结果构造提示来回答问题:  
+ page_content=&#39;: 255\nname: Sun Shield Shirt by\ndescription: &quot;Block the sun, not the fun – our high-performance sun shirt is guaranteed to protect from harmful UV rays. \n\nSize &amp; Fit: Slightly Fitted: Softly shapes the body. Falls at hip.\n\nFabric &amp; Care: 78% nylon, 22% Lycra Xtra Life fiber. UPF 50+ rated – the highest rated sun protection possible. Handwash, line dry.\n\nAdditional Features: Wicks moisture for quick-drying comfort. Fits comfortably over your favorite swimsuit. Abrasion resistant for season after season of wear. Imported.\n\nSun Protection That Won\&#39;t Wear Off\nOur high-performance fabric provides SPF 50+ sun protection, blocking 98% of the sun\&#39;s harmful rays. This fabric is recommended by The Skin Cancer Foundation as an effective UV protectant.&#39; metadata={&#39;source&#39;: &#39;../data/OutdoorClothingCatalog_1000.csv&#39;, &#39;row&#39;: 255}
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sun Shield Shirt</td>
+<td>High-performance sun shirt with UPF 50+ sun protection, moisture-wicking, and abrasion-resistant fabric. Recommended by The Skin Cancer Foundation.</td>
+</tr>
+<tr>
+<td>Men's Plaid Tropic Shirt</td>
+<td>Ultracomfortable shirt with UPF 50+ sun protection, wrinkle-free fabric, and front/back cape venting. Made with 52% polyester and 48% nylon.</td>
+</tr>
+<tr>
+<td>Men's TropicVibe Shirt</td>
+<td>Men's sun-protection shirt with built-in UPF 50+ and front/back cape venting. Made with 71% nylon and 29% polyester.</td>
+</tr>
+<tr>
+<td>Men's Tropical Plaid Short-Sleeve Shirt</td>
+<td>Lightest hot-weather shirt with UPF 50+ sun protection, front/back cape venting, and two front bellows pockets. Made with 100% polyester.</td>
+</tr>
+</tbody>
+</table>
+<p>All of these shirts provide UPF 50+ sun protection, blocking 98% of the sun's harmful rays. They also have additional features such as moisture-wicking, wrinkle-free fabric, and front/back cape venting for added comfort.</p>
+<div class="highlight"><pre><span></span><code>&gt; Entering new RetrievalQA chain...
+
+&gt; Finished chain.
+
+ 使用检索问答链来回答问题：
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Shirt Number</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>618</td>
+<td>Men's Tropical Plaid Short-Sleeve Shirt</td>
+<td>Rated UPF 50+ for superior protection from the sun's UV rays. Made of 100% polyester and is wrinkle-resistant. With front and back cape venting that lets in cool breezes and two front bellows pockets.</td>
+</tr>
+<tr>
+<td>374</td>
+<td>Men's Plaid Tropic Shirt, Short-Sleeve</td>
+<td>Rated to UPF 50+ and offers sun protection. Made with 52% polyester and 48% nylon, this shirt is machine washable and dryable. Additional features include front and back cape venting, two front bellows pockets.</td>
+</tr>
+<tr>
+<td>535</td>
+<td>Men's TropicVibe Shirt, Short-Sleeve</td>
+<td>Built-in UPF 50+ has the lightweight feel you want and the coverage you need when the air is hot and the UV rays are strong. Made with 71% Nylon, 29% Polyester. Wrinkle resistant. Front and back cape venting lets in cool breezes. Two front bellows pockets.</td>
+</tr>
+<tr>
+<td>255</td>
+<td>Sun Shield Shirt</td>
+<td>High-performance sun shirt is guaranteed to protect from harmful UV rays. Made with 78% nylon, 22% Lycra Xtra Life fiber. Wicks moisture for quick-drying comfort. Fits comfortably over your favorite swimsuit. Abrasion-resistant.</td>
+</tr>
+</tbody>
+</table>
+<p>All of the shirts listed above provide sun protection with a UPF rating of 50+ and block 98% of the sun's harmful rays. The Men's Tropical Plaid Short-Sleeve Shirt is made of 100% polyester and has front and back cape venting and two front bellows pockets. The Men's Plaid Tropic Shirt, Short-Sleeve is made with 52% polyester and 48% nylon and has front and back cape venting and two front bellows pockets. The Men's TropicVibe Shirt, Short-Sleeve is made with 71% Nylon, 29% Polyester and has front and back cape venting and two front bellows pockets. The Sun Shield Shirt is made with 78% nylon, 22% Lycra Xtra Life fiber and is abrasion-resistant. It fits comfortably over your favorite swimsuit.</p>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      最后更新:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+        <br>
+        创建日期:
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../4.%20%E6%A8%A1%E5%9E%8B%E9%93%BE%20Chains/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第四章 模型链">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第四章 模型链
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第六章 评估">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第六章 评估
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Ean Yang
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/YQisme" target="_blank" rel="noopener" title="github主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://space.bilibili.com/244185393?spm_id_from=333.788.0.0" target="_blank" rel="noopener" title="b站主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M488.6 104.1c16.7 18.1 24.4 39.7 23.3 65.7v202.4c-.4 26.4-9.2 48.1-26.5 65.1-17.2 17-39.1 25.9-65.5 26.7H92.02c-26.45-.8-48.21-9.8-65.28-27.2C9.682 419.4.767 396.5 0 368.2V169.8c.767-26 9.682-47.6 26.74-65.7C43.81 87.75 65.57 78.77 92.02 78h29.38L96.05 52.19c-5.75-5.73-8.63-13-8.63-21.79 0-8.8 2.88-16.06 8.63-21.797C101.8 2.868 109.1 0 117.9 0s16.1 2.868 21.9 8.603L213.1 78h88l74.5-69.397C381.7 2.868 389.2 0 398 0c8.8 0 16.1 2.868 21.9 8.603 5.7 5.737 8.6 12.997 8.6 21.797 0 8.79-2.9 16.06-8.6 21.79L394.6 78h29.3c26.4.77 48 9.75 64.7 26.1zm-38.8 69.7c-.4-9.6-3.7-17.4-10.7-23.5-5.2-6.1-14-9.4-22.7-9.8H96.05c-9.59.4-17.45 3.7-23.58 9.8-6.14 6.1-9.4 13.9-9.78 23.5v194.4c0 9.2 3.26 17 9.78 23.5s14.38 9.8 23.58 9.8H416.4c9.2 0 17-3.3 23.3-9.8 6.3-6.5 9.7-14.3 10.1-23.5V173.8zm-264.3 42.7c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.2 6.3-14 9.5-23.6 9.5-9.6 0-17.5-3.2-23.6-9.5-6.1-6.3-9.4-14-9.8-23.2v-33.3c.4-9.1 3.8-16.9 10.1-23.2 6.3-6.3 13.2-9.6 23.3-10 9.2.4 17 3.7 23.3 10zm191.5 0c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.1 6.3-14 9.5-23.6 9.5-9.6 0-17.4-3.2-23.6-9.5-7-6.3-9.4-14-9.7-23.2v-33.3c.3-9.1 3.7-16.9 10-23.2 6.3-6.3 14.1-9.6 23.3-10 9.2.4 17 3.7 23.3 10z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://eanyang7.com" target="_blank" rel="noopener" title="个人主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M112 48a48 48 0 1 1 96 0 48 48 0 1 1-96 0zm40 304v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V256.9l-28.6 47.6c-9.1 15.1-28.8 20-43.9 10.9s-20-28.8-10.9-43.9l58.3-97c17.4-28.9 48.6-46.6 82.3-46.6h29.7c33.7 0 64.9 17.7 82.3 46.6l58.3 97c9.1 15.1 4.2 34.8-10.9 43.9s-34.8 4.2-43.9-10.9L232 256.9V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V352h-16z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.prune", "navigation.top", "toc.follow", "header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

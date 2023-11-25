@@ -1,0 +1,1987 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="面向开发者的 LLM 入门教程，吴恩达大模型系列课程中文版">
+      
+      
+        <meta name="author" content="Ean Yang">
+      
+      
+        <link rel="canonical" href="https://eanyang7.github.io/prompt-engineering-for-developers/03-%E4%BD%BF%E7%94%A8%20LangChain%20%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/4.%20%E6%A8%A1%E5%9E%8B%E9%93%BE%20Chains/">
+      
+      
+        <link rel="prev" href="../3.%20%E5%82%A8%E5%AD%98%20Memory/">
+      
+      
+        <link rel="next" href="../5.%20%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%9A%84%E9%97%AE%E7%AD%94%20Question%20and%20Answer/">
+      
+      
+      <link rel="icon" href="../../assets/favicon.jpg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.12">
+    
+    
+      
+        <title>第四章 模型链 - 面向开发者的 LLM 入门教程</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-header__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            面向开发者的 LLM 入门教程
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第四章 模型链
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple"  aria-label="切换为暗黑模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换为暗黑模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="red"  aria-label="切换为浅色模式"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="切换为浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-nav__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    面向开发者的 LLM 入门教程
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    面向开发者的 LLM 入门课程
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%89%8D%E8%A8%80/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    前言
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    环境配置
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../01-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    01 面向开发者的提示工程
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../02-%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%20ChatGPT%20%E7%9A%84%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    02 搭建基于 ChatGPT 的问答系统
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    03 使用 LangChain 开发应用程序
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            03 使用 LangChain 开发应用程序
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第一章 简介
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.%20%E6%A8%A1%E5%9E%8B%E3%80%81%E6%8F%90%E7%A4%BA%E5%92%8C%E8%A7%A3%E6%9E%90%E5%99%A8%20Models%2C%20Prompts%20and%20Output%20Parsers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第二章 模型，提示和输出解释器
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.%20%E5%82%A8%E5%AD%98%20Memory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三章 储存
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    第四章 模型链
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    第四章 模型链
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、大语言模型链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、大语言模型链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 初始化语言模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 初始化提示模版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 构建大语言模型链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 运行大语言模型链
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、简单顺序链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、简单顺序链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 创建两个子链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 构建简单顺序链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 运行简单顺序链
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、 顺序链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三、 顺序链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 创建四个子链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 对四个子链进行组合
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      四、 路由链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="四、 路由链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 定义提示模板
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 对提示模版进行命名和描述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 基于提示模版信息创建相应目标链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4 创建默认目标链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5 定义不同链之间的路由模板
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.6 构建路由链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#47" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.7 创建整体链路
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#48" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.8 进行提问
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      英文版提示
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5.%20%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%9A%84%E9%97%AE%E7%AD%94%20Question%20and%20Answer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第五章 基于文档的问答
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第六章 评估
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7.%20%E4%BB%A3%E7%90%86%20Agent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第七章 代理
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8.%20%E6%80%BB%E7%BB%93%20Conclusion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第八章 总结
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../readme/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三部分 使用 LangChain 开发应用程序
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../04-%E4%BD%BF%E7%94%A8%20LangChain%20%E8%AE%BF%E9%97%AE%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    04 使用 LangChain 访问个人数据
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、大语言模型链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、大语言模型链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 初始化语言模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 初始化提示模版
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.3 构建大语言模型链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.4 运行大语言模型链
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、简单顺序链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、简单顺序链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 创建两个子链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 构建简单顺序链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.3 运行简单顺序链
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、 顺序链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="三、 顺序链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.1 创建四个子链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32" class="md-nav__link">
+    <span class="md-ellipsis">
+      3.2 对四个子链进行组合
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      四、 路由链
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="四、 路由链">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.1 定义提示模板
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.2 对提示模版进行命名和描述
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.3 基于提示模版信息创建相应目标链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.4 创建默认目标链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.5 定义不同链之间的路由模板
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.6 构建路由链
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#47" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.7 创建整体链路
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#48" class="md-nav__link">
+    <span class="md-ellipsis">
+      4.8 进行提问
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      英文版提示
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/4. 模型链 Chains.md" title="编辑此页" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/4. 模型链 Chains.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/></svg>
+    </a>
+  
+
+
+<h1 id="_1">第四章 模型链<a class="headerlink" href="#_1" title="Permanent link">⚓︎</a></h1>
+<p>链（Chains）通常将大语言模型（LLM）与提示（Prompt）结合在一起，基于此，我们可以对文本或数据进行一系列操作。链（Chains）可以一次性接受多个输入。例如，我们可以创建一个链，该链接受用户输入，使用提示模板对其进行格式化，然后将格式化的响应传递给 LLM 。我们可以通过将多个链组合在一起，或者通过将链与其他组件组合在一起来构建更复杂的链。</p>
+<h2 id="_2">一、大语言模型链<a class="headerlink" href="#_2" title="Permanent link">⚓︎</a></h2>
+<p>大语言模型链（LLMChain）是一个简单但非常强大的链，也是后面我们将要介绍的许多链的基础。</p>
+<h3 id="11">1.1 初始化语言模型<a class="headerlink" href="#11" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span> 
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>  
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>   
+
+<span class="c1"># 这里我们将参数temperature设置为0.0，从而减少生成答案的随机性。</span>
+<span class="c1"># 如果你想要每次得到不一样的有新意的答案，可以尝试调整该参数。</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>  
+</code></pre></div>
+<h3 id="12">1.2 初始化提示模版<a class="headerlink" href="#12" title="Permanent link">⚓︎</a></h3>
+<p>初始化提示，这个提示将接受一个名为product的变量。该prompt将要求LLM生成一个描述制造该产品的公司的最佳名称</p>
+<div class="highlight"><pre><span></span><code><span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&quot;描述制造</span><span class="si">{product}</span><span class="s2">的一个公司的最佳名称是什么?&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="13">1.3 构建大语言模型链<a class="headerlink" href="#13" title="Permanent link">⚓︎</a></h3>
+<p>将大语言模型(LLM)和提示（Prompt）组合成链。这个大语言模型链非常简单，可以让我们以一种顺序的方式去通过运行提示并且结合到大语言模型中。</p>
+<div class="highlight"><pre><span></span><code><span class="n">chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="14">1.4 运行大语言模型链<a class="headerlink" href="#14" title="Permanent link">⚓︎</a></h3>
+<p>因此，如果我们有一个名为"Queen Size Sheet Set"的产品，我们可以通过使用<code>chain.run</code>将其通过这个链运行</p>
+<div class="highlight"><pre><span></span><code><span class="n">product</span> <span class="o">=</span> <span class="s2">&quot;大号床单套装&quot;</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&#39;&quot;豪华床纺&quot;&#39;
+</code></pre></div>
+<p>您可以输入任何产品描述，然后查看链将输出什么结果。</p>
+<h2 id="_3">二、简单顺序链<a class="headerlink" href="#_3" title="Permanent link">⚓︎</a></h2>
+<p>顺序链（SequentialChains）是按预定义顺序执行其链接的链。具体来说，我们将使用简单顺序链（SimpleSequentialChain），这是顺序链的最简单类型，其中每个步骤都有一个输入/输出，一个步骤的输出是下一个步骤的输入。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">SimpleSequentialChain</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="21">2.1 创建两个子链<a class="headerlink" href="#21" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># 提示模板 1 ：这个提示将接受产品并返回最佳名称来描述该公司</span>
+<span class="n">first_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>   
+    <span class="s2">&quot;描述制造</span><span class="si">{product}</span><span class="s2">的一个公司的最好的名称是什么&quot;</span>
+<span class="p">)</span>
+<span class="n">chain_one</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">first_prompt</span><span class="p">)</span>
+
+<span class="c1"># 提示模板 2 ：接受公司名称，然后输出该公司的长为20个单词的描述</span>
+<span class="n">second_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>   
+    <span class="s2">&quot;写一个20字的描述对于下面这个</span><span class="se">\</span>
+<span class="s2">    公司：</span><span class="si">{company_name}</span><span class="s2">的&quot;</span>
+<span class="p">)</span>
+<span class="n">chain_two</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">second_prompt</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="22">2.2 构建简单顺序链<a class="headerlink" href="#22" title="Permanent link">⚓︎</a></h3>
+<p>现在我们可以组合两个LLMChain，以便我们可以在一个步骤中创建公司名称和描述</p>
+<div class="highlight"><pre><span></span><code><span class="n">overall_simple_chain</span> <span class="o">=</span> <span class="n">SimpleSequentialChain</span><span class="p">(</span><span class="n">chains</span><span class="o">=</span><span class="p">[</span><span class="n">chain_one</span><span class="p">,</span> <span class="n">chain_two</span><span class="p">],</span>
+                                             <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>给一个输入，然后运行上面的链</p>
+<h3 id="23">2.3 运行简单顺序链<a class="headerlink" href="#23" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="n">product</span> <span class="o">=</span> <span class="s2">&quot;大号床单套装&quot;</span>
+<span class="n">overall_simple_chain</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new SimpleSequentialChain chain...
+优床制造公司
+优床制造公司是一家专注于生产高品质床具的公司。
+
+&gt; Finished chain.
+
+
+
+
+
+&#39;优床制造公司是一家专注于生产高品质床具的公司。&#39;
+</code></pre></div>
+<h2 id="_4">三、 顺序链<a class="headerlink" href="#_4" title="Permanent link">⚓︎</a></h2>
+<p>当只有一个输入和一个输出时，简单顺序链（SimpleSequentialChain）即可实现。当有多个输入或多个输出时，我们则需要使用顺序链（SequentialChain）来实现。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">SequentialChain</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>    <span class="c1">#导入OpenAI模型</span>
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>   <span class="c1">#导入聊天提示模板</span>
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>    <span class="c1">#导入LLM链。</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+</code></pre></div>
+<p>接下来我们将创建一系列的链，然后一个接一个使用他们</p>
+<h3 id="31">3.1 创建四个子链<a class="headerlink" href="#31" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">#子链1</span>
+<span class="c1"># prompt模板 1: 翻译成英语（把下面的review翻译成英语）</span>
+<span class="n">first_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;把下面的评论review翻译成英文:&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{Review}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="c1"># chain 1: 输入：Review    输出：英文的 Review</span>
+<span class="n">chain_one</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">first_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;English_Review&quot;</span><span class="p">)</span>
+
+<span class="c1">#子链2</span>
+<span class="c1"># prompt模板 2: 用一句话总结下面的 review</span>
+<span class="n">second_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;请你用一句话来总结下面的评论review:&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{English_Review}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="c1"># chain 2: 输入：英文的Review   输出：总结</span>
+<span class="n">chain_two</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">second_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;summary&quot;</span><span class="p">)</span>
+
+
+<span class="c1">#子链3</span>
+<span class="c1"># prompt模板 3: 下面review使用的什么语言</span>
+<span class="n">third_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;下面的评论review使用的什么语言:</span><span class="se">\n\n</span><span class="si">{Review}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="c1"># chain 3: 输入：Review  输出：语言</span>
+<span class="n">chain_three</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">third_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;language&quot;</span><span class="p">)</span>
+
+
+<span class="c1">#子链4</span>
+<span class="c1"># prompt模板 4: 使用特定的语言对下面的总结写一个后续回复</span>
+<span class="n">fourth_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;使用特定的语言对下面的总结写一个后续回复:&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">总结: </span><span class="si">{summary}</span><span class="se">\n\n</span><span class="s2">语言: </span><span class="si">{language}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="c1"># chain 4: 输入： 总结, 语言    输出： 后续回复</span>
+<span class="n">chain_four</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">fourth_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;followup_message&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="32">3.2 对四个子链进行组合<a class="headerlink" href="#32" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">#输入：review    </span>
+<span class="c1">#输出：英文review，总结，后续回复 </span>
+<span class="n">overall_chain</span> <span class="o">=</span> <span class="n">SequentialChain</span><span class="p">(</span>
+    <span class="n">chains</span><span class="o">=</span><span class="p">[</span><span class="n">chain_one</span><span class="p">,</span> <span class="n">chain_two</span><span class="p">,</span> <span class="n">chain_three</span><span class="p">,</span> <span class="n">chain_four</span><span class="p">],</span>
+    <span class="n">input_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Review&quot;</span><span class="p">],</span>
+    <span class="n">output_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;English_Review&quot;</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">,</span><span class="s2">&quot;followup_message&quot;</span><span class="p">],</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>让我们选择一篇评论并通过整个链传递它，可以发现，原始review是法语，可以把英文review看做是一种翻译，接下来是根据英文review得到的总结，最后输出的是用法语原文进行的续写信息。</p>
+<div class="highlight"><pre><span></span><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;../data/Data.csv&#39;</span><span class="p">)</span>
+<span class="n">review</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Review</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">overall_chain</span><span class="p">(</span><span class="n">review</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new SequentialChain chain...
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;Review&#39;: &quot;Je trouve le goût médiocre. La mousse ne tient pas, c&#39;est bizarre. J&#39;achète les mêmes dans le commerce et le goût est bien meilleur...\nVieux lot ou contrefaçon !?&quot;,
+ &#39;English_Review&#39;: &quot;I find the taste mediocre. The foam doesn&#39;t hold, it&#39;s weird. I buy the same ones in stores and the taste is much better...\nOld batch or counterfeit!?&quot;,
+ &#39;summary&#39;: &quot;The reviewer finds the taste mediocre, the foam doesn&#39;t hold well, and suspects the product may be either an old batch or a counterfeit.&quot;,
+ &#39;followup_message&#39;: &quot;后续回复（法语）：Merci beaucoup pour votre avis. Nous sommes désolés d&#39;apprendre que vous avez trouvé le goût médiocre et que la mousse ne tient pas bien. Nous prenons ces problèmes très au sérieux et nous enquêterons sur la possibilité que le produit soit soit un ancien lot, soit une contrefaçon. Nous vous prions de nous excuser pour cette expérience décevante et nous ferons tout notre possible pour résoudre ce problème. Votre satisfaction est notre priorité et nous apprécions vos commentaires précieux.&quot;}
+</code></pre></div>
+<h2 id="_5">四、 路由链<a class="headerlink" href="#_5" title="Permanent link">⚓︎</a></h2>
+<p>到目前为止，我们已经学习了大语言模型链和顺序链。但是，如果我们想做一些更复杂的事情怎么办？一个相当常见但基本的操作是根据输入将其路由到一条链，具体取决于该输入到底是什么。如果你有多个子链，每个子链都专门用于特定类型的输入，那么可以组成一个路由链，它首先决定将它传递给哪个子链，然后将它传递给那个链。</p>
+<p>路由器由两个组件组成：</p>
+<ul>
+<li>路由链（Router Chain）：路由器链本身，负责选择要调用的下一个链</li>
+<li>destination_chains：路由器链可以路由到的链</li>
+</ul>
+<p>举一个具体的例子，让我们看一下我们在不同类型的链之间路由的地方，我们在这里有不同的prompt:  </p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains.router</span> <span class="kn">import</span> <span class="n">MultiPromptChain</span>  <span class="c1">#导入多提示链</span>
+<span class="kn">from</span> <span class="nn">langchain.chains.router.llm_router</span> <span class="kn">import</span> <span class="n">LLMRouterChain</span><span class="p">,</span><span class="n">RouterOutputParser</span>
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="41">4.1 定义提示模板<a class="headerlink" href="#41" title="Permanent link">⚓︎</a></h3>
+<p>首先，我们定义提示适用于不同场景下的提示模板。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 中文</span>
+<span class="c1">#第一个提示适合回答物理问题</span>
+<span class="n">physics_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;你是一个非常聪明的物理专家。 </span><span class="se">\</span>
+<span class="s2">你擅长用一种简洁并且易于理解的方式去回答问题。</span><span class="se">\</span>
+<span class="s2">当你不知道问题的答案时，你承认</span><span class="se">\</span>
+<span class="s2">你不知道.</span>
+
+<span class="s2">这是一个问题:</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="c1">#第二个提示适合回答数学问题</span>
+<span class="n">math_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;你是一个非常优秀的数学家。 </span><span class="se">\</span>
+<span class="s2">你擅长回答数学问题。 </span><span class="se">\</span>
+<span class="s2">你之所以如此优秀， </span><span class="se">\</span>
+<span class="s2">是因为你能够将棘手的问题分解为组成部分，</span><span class="se">\</span>
+<span class="s2">回答组成部分，然后将它们组合在一起，回答更广泛的问题。</span>
+
+<span class="s2">这是一个问题：</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="c1">#第三个适合回答历史问题</span>
+<span class="n">history_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;你是以为非常优秀的历史学家。 </span><span class="se">\</span>
+<span class="s2">你对一系列历史时期的人物、事件和背景有着极好的学识和理解</span><span class="se">\</span>
+<span class="s2">你有能力思考、反思、辩证、讨论和评估过去。</span><span class="se">\</span>
+<span class="s2">你尊重历史证据，并有能力利用它来支持你的解释和判断。</span>
+
+<span class="s2">这是一个问题:</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="c1">#第四个适合回答计算机问题</span>
+<span class="n">computerscience_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; 你是一个成功的计算机科学专家。</span><span class="se">\</span>
+<span class="s2">你有创造力、协作精神、</span><span class="se">\</span>
+<span class="s2">前瞻性思维、自信、解决问题的能力、</span><span class="se">\</span>
+<span class="s2">对理论和算法的理解以及出色的沟通技巧。</span><span class="se">\</span>
+<span class="s2">你非常擅长回答编程问题。</span><span class="se">\</span>
+<span class="s2">你之所以如此优秀，是因为你知道  </span><span class="se">\</span>
+<span class="s2">如何通过以机器可以轻松解释的命令式步骤描述解决方案来解决问题，</span><span class="se">\</span>
+<span class="s2">并且你知道如何选择在时间复杂性和空间复杂性之间取得良好平衡的解决方案。</span>
+
+<span class="s2">这还是一个输入：</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<h3 id="42">4.2 对提示模版进行命名和描述<a class="headerlink" href="#42" title="Permanent link">⚓︎</a></h3>
+<p>在定义了这些提示模板后，我们可以为每个模板命名，并给出具体描述。例如，第一个物理学的描述适合回答关于物理学的问题，这些信息将传递给路由链，然后由路由链决定何时使用此子链。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 中文</span>
+<span class="n">prompt_infos</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;名字&quot;</span><span class="p">:</span> <span class="s2">&quot;物理学&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;描述&quot;</span><span class="p">:</span> <span class="s2">&quot;擅长回答关于物理学的问题&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;提示模板&quot;</span><span class="p">:</span> <span class="n">physics_template</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;名字&quot;</span><span class="p">:</span> <span class="s2">&quot;数学&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;描述&quot;</span><span class="p">:</span> <span class="s2">&quot;擅长回答数学问题&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;提示模板&quot;</span><span class="p">:</span> <span class="n">math_template</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;名字&quot;</span><span class="p">:</span> <span class="s2">&quot;历史&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;描述&quot;</span><span class="p">:</span> <span class="s2">&quot;擅长回答历史问题&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;提示模板&quot;</span><span class="p">:</span> <span class="n">history_template</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;名字&quot;</span><span class="p">:</span> <span class="s2">&quot;计算机科学&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;描述&quot;</span><span class="p">:</span> <span class="s2">&quot;擅长回答计算机科学问题&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;提示模板&quot;</span><span class="p">:</span> <span class="n">computerscience_template</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>LLMRouterChain（此链使用 LLM 来确定如何路由事物）</p>
+<p>在这里，我们需要一个<strong>多提示链</strong>。这是一种特定类型的链，用于在多个不同的提示模板之间进行路由。 但是这只是路由的一种类型，我们也可以在任何类型的链之间进行路由。</p>
+<p>这里我们要实现的几个类是大模型路由器链。这个类本身使用语言模型来在不同的子链之间进行路由。这就是上面提供的描述和名称将被使用的地方。</p>
+<h3 id="43">4.3 基于提示模版信息创建相应目标链<a class="headerlink" href="#43" title="Permanent link">⚓︎</a></h3>
+<p>目标链是由路由链调用的链，每个目标链都是一个语言模型链</p>
+<div class="highlight"><pre><span></span><code><span class="n">destination_chains</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">p_info</span> <span class="ow">in</span> <span class="n">prompt_infos</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">p_info</span><span class="p">[</span><span class="s2">&quot;名字&quot;</span><span class="p">]</span>
+    <span class="n">prompt_template</span> <span class="o">=</span> <span class="n">p_info</span><span class="p">[</span><span class="s2">&quot;提示模板&quot;</span><span class="p">]</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">prompt_template</span><span class="p">)</span>
+    <span class="n">chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="n">destination_chains</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">chain</span>  
+
+<span class="n">destinations</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;名字&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;描述&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prompt_infos</span><span class="p">]</span>
+<span class="n">destinations_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destinations</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="44">4.4 创建默认目标链<a class="headerlink" href="#44" title="Permanent link">⚓︎</a></h3>
+<p>除了目标链之外，我们还需要一个默认目标链。这是一个当路由器无法决定使用哪个子链时调用的链。在上面的示例中，当输入问题与物理、数学、历史或计算机科学无关时，可能会调用它。</p>
+<div class="highlight"><pre><span></span><code><span class="n">default_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{input}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">default_chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">default_prompt</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="45">4.5 定义不同链之间的路由模板<a class="headerlink" href="#45" title="Permanent link">⚓︎</a></h3>
+<p>这包括要完成的任务的说明以及输出应该采用的特定格式。</p>
+<p>注意：此处在原教程的基础上添加了一个示例，主要是因为"gpt-3.5-turbo"模型不能很好适应理解模板的意思，使用 "text-davinci-003" 或者"gpt-4-0613"可以很好的工作，因此在这里多加了示例提示让其更好的学习。</p>
+<p>例如:</p>
+<p>&lt;&lt; INPUT &gt;&gt;</p>
+<p>"What is black body radiation?"</p>
+<p>&lt;&lt; OUTPUT &gt;&gt;
+<div class="highlight"><pre><span></span><code><span class="p">{{{{</span>
+<span class="w">    </span><span class="nt">&quot;destination&quot;</span><span class="p">:</span><span class="w"> </span><span class="err">s</span><span class="kc">tr</span><span class="err">i</span><span class="kc">n</span><span class="err">g</span><span class="w"> </span><span class="err">\</span><span class="w"> </span><span class="kc">na</span><span class="err">me</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="kc">t</span><span class="err">he</span><span class="w"> </span><span class="err">promp</span><span class="kc">t</span><span class="w"> </span><span class="kc">t</span><span class="err">o</span><span class="w"> </span><span class="err">use</span><span class="w"> </span><span class="err">or</span><span class="w"> </span><span class="nt">&quot;DEFAULT&quot;</span>
+<span class="w">    </span><span class="nt">&quot;next_inputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="err">s</span><span class="kc">tr</span><span class="err">i</span><span class="kc">n</span><span class="err">g</span><span class="w"> </span><span class="err">\</span><span class="w"> </span><span class="err">a</span><span class="w"> </span><span class="err">po</span><span class="kc">tent</span><span class="err">ially</span><span class="w"> </span><span class="err">modi</span><span class="kc">f</span><span class="err">ied</span><span class="w"> </span><span class="err">versio</span><span class="kc">n</span><span class="w"> </span><span class="err">o</span><span class="kc">f</span><span class="w"> </span><span class="kc">t</span><span class="err">he</span><span class="w"> </span><span class="err">origi</span><span class="kc">nal</span><span class="w"> </span><span class="err">i</span><span class="kc">n</span><span class="err">pu</span><span class="kc">t</span>
+<span class="p">}}}}</span>
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 多提示路由模板</span>
+<span class="n">MULTI_PROMPT_ROUTER_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;给语言模型一个原始文本输入，</span><span class="se">\</span>
+<span class="s2">让其选择最适合输入的模型提示。</span><span class="se">\</span>
+<span class="s2">系统将为您提供可用提示的名称以及最适合改提示的描述。</span><span class="se">\</span>
+<span class="s2">如果你认为修改原始输入最终会导致语言模型做出更好的响应，</span><span class="se">\</span>
+<span class="s2">你也可以修改原始输入。</span>
+
+
+<span class="s2">&lt;&lt; 格式 &gt;&gt;</span>
+<span class="s2">返回一个带有JSON对象的markdown代码片段，该JSON对象的格式如下：</span>
+<span class="s2">```json</span>
+<span class="s2">{{{{</span>
+<span class="s2">    &quot;destination&quot;: 字符串 \ 使用的提示名字或者使用 &quot;DEFAULT&quot;</span>
+<span class="s2">    &quot;next_inputs&quot;: 字符串 \ 原始输入的改进版本</span>
+<span class="s2">}}}}</span>
+
+
+
+<span class="s2">记住：“destination”必须是下面指定的候选提示名称之一，</span><span class="se">\</span>
+<span class="s2">或者如果输入不太适合任何候选提示，</span><span class="se">\</span>
+<span class="s2">则可以是 “DEFAULT” 。</span>
+<span class="s2">记住：如果您认为不需要任何修改，</span><span class="se">\</span>
+<span class="s2">则 “next_inputs” 可以只是原始输入。</span>
+
+<span class="s2">&lt;&lt; 候选提示 &gt;&gt;</span>
+<span class="si">{destinations}</span>
+
+<span class="s2">&lt;&lt; 输入 &gt;&gt;</span>
+<span class="s2">{{input}}</span>
+
+<span class="s2">&lt;&lt; 输出 (记得要包含 ```json)&gt;&gt;</span>
+
+<span class="s2">样例:</span>
+<span class="s2">&lt;&lt; 输入 &gt;&gt;</span>
+<span class="s2">&quot;什么是黑体辐射?&quot;</span>
+<span class="s2">&lt;&lt; 输出 &gt;&gt;</span>
+<span class="s2">```json</span>
+<span class="s2">{{{{</span>
+<span class="s2">    &quot;destination&quot;: 字符串 \ 使用的提示名字或者使用 &quot;DEFAULT&quot;</span>
+<span class="s2">    &quot;next_inputs&quot;: 字符串 \ 原始输入的改进版本</span>
+<span class="s2">}}}}</span>
+
+<span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<h3 id="46">4.6 构建路由链<a class="headerlink" href="#46" title="Permanent link">⚓︎</a></h3>
+<p>首先，我们通过格式化上面定义的目标创建完整的路由器模板。这个模板可以适用许多不同类型的目标。
+因此，在这里，您可以添加一个不同的学科，如英语或拉丁语，而不仅仅是物理、数学、历史和计算机科学。</p>
+<p>接下来，我们从这个模板创建提示模板。</p>
+<p>最后，通过传入llm和整个路由提示来创建路由链。需要注意的是这里有路由输出解析，这很重要，因为它将帮助这个链路决定在哪些子链路之间进行路由。</p>
+<div class="highlight"><pre><span></span><code><span class="n">router_template</span> <span class="o">=</span> <span class="n">MULTI_PROMPT_ROUTER_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+    <span class="n">destinations</span><span class="o">=</span><span class="n">destinations_str</span>
+<span class="p">)</span>
+<span class="n">router_prompt</span> <span class="o">=</span> <span class="n">PromptTemplate</span><span class="p">(</span>
+    <span class="n">template</span><span class="o">=</span><span class="n">router_template</span><span class="p">,</span>
+    <span class="n">input_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;input&quot;</span><span class="p">],</span>
+    <span class="n">output_parser</span><span class="o">=</span><span class="n">RouterOutputParser</span><span class="p">(),</span>
+<span class="p">)</span>
+
+<span class="n">router_chain</span> <span class="o">=</span> <span class="n">LLMRouterChain</span><span class="o">.</span><span class="n">from_llm</span><span class="p">(</span><span class="n">llm</span><span class="p">,</span> <span class="n">router_prompt</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="47">4.7 创建整体链路<a class="headerlink" href="#47" title="Permanent link">⚓︎</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">#多提示链</span>
+<span class="n">chain</span> <span class="o">=</span> <span class="n">MultiPromptChain</span><span class="p">(</span><span class="n">router_chain</span><span class="o">=</span><span class="n">router_chain</span><span class="p">,</span>    <span class="c1">#l路由链路</span>
+                         <span class="n">destination_chains</span><span class="o">=</span><span class="n">destination_chains</span><span class="p">,</span>   <span class="c1">#目标链路</span>
+                         <span class="n">default_chain</span><span class="o">=</span><span class="n">default_chain</span><span class="p">,</span>      <span class="c1">#默认链路</span>
+                         <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>   
+                        <span class="p">)</span>
+</code></pre></div>
+<h3 id="48">4.8 进行提问<a class="headerlink" href="#48" title="Permanent link">⚓︎</a></h3>
+<p>如果我们问一个物理问题，我们希望看到他被路由到物理链路。</p>
+<div class="highlight"><pre><span></span><code><span class="n">chain</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;什么是黑体辐射？&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new MultiPromptChain chain...
+物理学: {&#39;input&#39;: &#39;什么是黑体辐射？&#39;}
+&gt; Finished chain.
+
+
+
+
+
+&#39;黑体辐射是指一个理想化的物体，它能够完全吸收并且以最高效率地辐射出所有入射到它上面的电磁辐射。这种辐射的特点是它的辐射强度与波长有关，且在不同波长下的辐射强度符合普朗克辐射定律。黑体辐射在物理学中有广泛的应用，例如研究热力学、量子力学和宇宙学等领域。&#39;
+</code></pre></div>
+<p>如果我们问一个数学问题，我们希望看到他被路由到数学链路。</p>
+<div class="highlight"><pre><span></span><code><span class="n">chain</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;2+2等于多少？&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new MultiPromptChain chain...
+数学: {&#39;input&#39;: &#39;2+2等于多少？&#39;}
+&gt; Finished chain.
+
+
+
+
+
+&#39;2+2等于4。&#39;
+</code></pre></div>
+<p>如果我们传递一个与任何子链路都无关的问题时，会发生什么呢？</p>
+<p>这里，我们问了一个关于生物学的问题，我们可以看到它选择的链路是无。这意味着它将被<strong>传递到默认链路，它本身只是对语言模型的通用调用</strong>。语言模型幸运地对生物学知道很多，所以它可以帮助我们。</p>
+<div class="highlight"><pre><span></span><code><span class="n">chain</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;为什么我们身体里的每个细胞都包含DNA？&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new MultiPromptChain chain...
+物理学: {&#39;input&#39;: &#39;为什么我们身体里的每个细胞都包含DNA？&#39;}
+&gt; Finished chain.
+
+
+
+
+
+&#39;我们身体里的每个细胞都包含DNA，因为DNA是遗传信息的载体。DNA是由四种碱基（腺嘌呤、胸腺嘧啶、鸟嘌呤和胞嘧啶）组成的长链状分子，它存储了我们的遗传信息，包括我们的基因和遗传特征。每个细胞都需要这些遗传信息来执行其特定的功能和任务。所以，DNA存在于每个细胞中，以确保我们的身体正常运作。&#39;
+</code></pre></div>
+<h2 id="_6">英文版提示<a class="headerlink" href="#_6" title="Permanent link">⚓︎</a></h2>
+<p><strong>1.大语言模型链</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span> 
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>  
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>   
+
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>  
+
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>   
+    <span class="s2">&quot;What is the best name to describe </span><span class="se">\</span>
+<span class="s2">    a company that makes </span><span class="si">{product}</span><span class="s2">?&quot;</span>
+<span class="p">)</span>
+
+<span class="n">chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">)</span>
+
+<span class="n">product</span> <span class="o">=</span> <span class="s2">&quot;Queen Size Sheet Set&quot;</span>
+<span class="n">chain</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&#39;Royal Comfort Linens&#39;
+</code></pre></div>
+<p><strong>2.简单顺序链</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">SimpleSequentialChain</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+
+<span class="n">first_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;What is the best name to describe </span><span class="se">\</span>
+<span class="s2">    a company that makes </span><span class="si">{product}</span><span class="s2">?&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Chain 1</span>
+<span class="n">chain_one</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">first_prompt</span><span class="p">)</span>
+
+<span class="n">second_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;Write a 20 words description for the following </span><span class="se">\</span>
+<span class="s2">    company:</span><span class="si">{company_name}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+<span class="c1"># chain 2</span>
+<span class="n">chain_two</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">second_prompt</span><span class="p">)</span>
+
+
+<span class="n">overall_simple_chain</span> <span class="o">=</span> <span class="n">SimpleSequentialChain</span><span class="p">(</span><span class="n">chains</span><span class="o">=</span><span class="p">[</span><span class="n">chain_one</span><span class="p">,</span> <span class="n">chain_two</span><span class="p">],</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">product</span> <span class="o">=</span> <span class="s2">&quot;Queen Size Sheet Set&quot;</span>
+<span class="n">overall_simple_chain</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">product</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new SimpleSequentialChain chain...
+&quot;Royal Comfort Beddings&quot;
+Royal Comfort Beddings is a reputable company that offers luxurious and comfortable bedding options fit for royalty.
+
+&gt; Finished chain.
+
+
+
+
+
+&#39;Royal Comfort Beddings is a reputable company that offers luxurious and comfortable bedding options fit for royalty.&#39;
+</code></pre></div>
+<p><strong>3. 顺序链</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">SequentialChain</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>    
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>   
+<span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>    
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.9</span><span class="p">)</span>
+
+<span class="n">first_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;Translate the following review to english:&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{Review}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="n">chain_one</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">first_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;English_Review&quot;</span><span class="p">)</span>
+
+
+<span class="n">second_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;Can you summarize the following review in 1 sentence:&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\n\n</span><span class="si">{English_Review}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="n">chain_two</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">second_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;summary&quot;</span><span class="p">)</span>
+
+<span class="n">third_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;What language is the following review:</span><span class="se">\n\n</span><span class="si">{Review}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="n">chain_three</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">third_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;language&quot;</span><span class="p">)</span>
+
+<span class="n">fourth_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span>
+    <span class="s2">&quot;Write a follow up response to the following &quot;</span>
+    <span class="s2">&quot;summary in the specified language:&quot;</span>
+    <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Summary: </span><span class="si">{summary}</span><span class="se">\n\n</span><span class="s2">Language: </span><span class="si">{language}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+<span class="n">chain_four</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">fourth_prompt</span><span class="p">,</span> <span class="n">output_key</span><span class="o">=</span><span class="s2">&quot;followup_message&quot;</span><span class="p">)</span>
+
+
+<span class="n">overall_chain</span> <span class="o">=</span> <span class="n">SequentialChain</span><span class="p">(</span>
+    <span class="n">chains</span><span class="o">=</span><span class="p">[</span><span class="n">chain_one</span><span class="p">,</span> <span class="n">chain_two</span><span class="p">,</span> <span class="n">chain_three</span><span class="p">,</span> <span class="n">chain_four</span><span class="p">],</span>
+    <span class="n">input_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Review&quot;</span><span class="p">],</span>
+    <span class="n">output_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;English_Review&quot;</span><span class="p">,</span> <span class="s2">&quot;summary&quot;</span><span class="p">,</span><span class="s2">&quot;followup_message&quot;</span><span class="p">],</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">review</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">Review</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+<span class="n">overall_chain</span><span class="p">(</span><span class="n">review</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new SequentialChain chain...
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;Review&#39;: &quot;Je trouve le goût médiocre. La mousse ne tient pas, c&#39;est bizarre. J&#39;achète les mêmes dans le commerce et le goût est bien meilleur...\nVieux lot ou contrefaçon !?&quot;,
+ &#39;English_Review&#39;: &quot;I find the taste poor. The foam doesn&#39;t hold, it&#39;s weird. I buy the same ones from the store and the taste is much better...\nOld batch or counterfeit!?&quot;,
+ &#39;summary&#39;: &#39;The reviewer is disappointed with the poor taste and lack of foam in the product, suspecting it to be either an old batch or a counterfeit.&#39;,
+ &#39;followup_message&#39;: &quot;Réponse de suivi:\n\nCher(e) critique,\n\nNous sommes vraiment désolés d&#39;apprendre que vous avez été déçu(e) par le mauvais goût et l&#39;absence de mousse de notre produit. Nous comprenons votre frustration et souhaitons rectifier cette situation.\n\nTout d&#39;abord, nous tenons à vous assurer que nous ne vendons que des produits authentiques et de haute qualité. Chaque lot de notre produit est soigneusement contrôlé avant d&#39;être mis sur le marché.\n\nCependant, il est possible qu&#39;un incident se soit produit dans votre cas. Nous vous invitons donc à nous contacter directement afin que nous puissions mieux comprendre la situation et résoudre ce problème. Nous accorderons une attention particulière à la fraîcheur et à la mousse de notre produit pour garantir votre satisfaction.\n\nNous tenons à vous remercier pour vos commentaires, car ils nous aident à améliorer continuellement notre produit. Votre satisfaction est notre priorité absolue et nous ferons tout notre possible pour rectifier cette situation.\n\nNous espérons avoir l&#39;opportunité de vous fournir une expérience agréable avec notre produit à l&#39;avenir.\n\nCordialement,\nL&#39;équipe du service client&quot;}
+</code></pre></div>
+<p><strong>4. 路由链</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chains</span> <span class="kn">import</span> <span class="n">LLMChain</span>   
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span> 
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span> 
+<span class="kn">from</span> <span class="nn">langchain.chains.router</span> <span class="kn">import</span> <span class="n">MultiPromptChain</span> 
+<span class="kn">from</span> <span class="nn">langchain.chains.router.llm_router</span> <span class="kn">import</span> <span class="n">LLMRouterChain</span><span class="p">,</span><span class="n">RouterOutputParser</span>
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">PromptTemplate</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>  
+
+<span class="n">physics_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;You are a very smart physics professor. </span><span class="se">\</span>
+<span class="s2">You are great at answering questions about physics in a concise</span><span class="se">\</span>
+<span class="s2">and easy to understand manner. </span><span class="se">\</span>
+<span class="s2">When you don&#39;t know the answer to a question you admit</span><span class="se">\</span>
+<span class="s2">that you don&#39;t know.</span>
+
+<span class="s2">Here is a question:</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="n">math_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;You are a very good mathematician. </span><span class="se">\</span>
+<span class="s2">You are great at answering math questions. </span><span class="se">\</span>
+<span class="s2">You are so good because you are able to break down </span><span class="se">\</span>
+<span class="s2">hard problems into their component parts, </span>
+<span class="s2">answer the component parts, and then put them together</span><span class="se">\</span>
+<span class="s2">to answer the broader question.</span>
+
+<span class="s2">Here is a question:</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">history_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;You are a very good historian. </span><span class="se">\</span>
+<span class="s2">You have an excellent knowledge of and understanding of people,</span><span class="se">\</span>
+<span class="s2">events and contexts from a range of historical periods. </span><span class="se">\</span>
+<span class="s2">You have the ability to think, reflect, debate, discuss and </span><span class="se">\</span>
+<span class="s2">evaluate the past. You have a respect for historical evidence</span><span class="se">\</span>
+<span class="s2">and the ability to make use of it to support your explanations </span><span class="se">\</span>
+<span class="s2">and judgements.</span>
+
+<span class="s2">Here is a question:</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="n">computerscience_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot; You are a successful computer scientist.</span><span class="se">\</span>
+<span class="s2">You have a passion for creativity, collaboration,</span><span class="se">\</span>
+<span class="s2">forward-thinking, confidence, strong problem-solving capabilities,</span><span class="se">\</span>
+<span class="s2">understanding of theories and algorithms, and excellent communication </span><span class="se">\</span>
+<span class="s2">skills. You are great at answering coding questions. </span><span class="se">\</span>
+<span class="s2">You are so good because you know how to solve a problem by </span><span class="se">\</span>
+<span class="s2">describing the solution in imperative steps </span><span class="se">\</span>
+<span class="s2">that a machine can easily interpret and you know how to </span><span class="se">\</span>
+<span class="s2">choose a solution that has a good balance between </span><span class="se">\</span>
+<span class="s2">time complexity and space complexity. </span>
+
+<span class="s2">Here is a question:</span>
+<span class="si">{input}</span><span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">prompt_infos</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;physics&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Good for answering questions about physics&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;prompt_template&quot;</span><span class="p">:</span> <span class="n">physics_template</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;math&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Good for answering math questions&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;prompt_template&quot;</span><span class="p">:</span> <span class="n">math_template</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;History&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Good for answering history questions&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;prompt_template&quot;</span><span class="p">:</span> <span class="n">history_template</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;computer science&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Good for answering computer science questions&quot;</span><span class="p">,</span> 
+        <span class="s2">&quot;prompt_template&quot;</span><span class="p">:</span> <span class="n">computerscience_template</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+
+
+<span class="n">destination_chains</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">p_info</span> <span class="ow">in</span> <span class="n">prompt_infos</span><span class="p">:</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">p_info</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+    <span class="n">prompt_template</span> <span class="o">=</span> <span class="n">p_info</span><span class="p">[</span><span class="s2">&quot;prompt_template&quot;</span><span class="p">]</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">prompt_template</span><span class="p">)</span>
+    <span class="n">chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="n">destination_chains</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">chain</span>  
+
+<span class="n">destinations</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prompt_infos</span><span class="p">]</span>
+<span class="n">destinations_str</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">destinations</span><span class="p">)</span>
+
+<span class="n">default_prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{input}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">default_chain</span> <span class="o">=</span> <span class="n">LLMChain</span><span class="p">(</span><span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">default_prompt</span><span class="p">)</span>
+
+
+<span class="n">MULTI_PROMPT_ROUTER_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Given a raw text input to a </span><span class="se">\</span>
+<span class="s2">language model select the model prompt best suited for the input. </span><span class="se">\</span>
+<span class="s2">You will be given the names of the available prompts and a </span><span class="se">\</span>
+<span class="s2">description of what the prompt is best suited for. </span><span class="se">\</span>
+<span class="s2">You may also revise the original input if you think that revising</span><span class="se">\</span>
+<span class="s2">it will ultimately lead to a better response from the language model.</span>
+
+<span class="s2">&lt;&lt; FORMATTING &gt;&gt;</span>
+<span class="s2">Return a markdown code snippet with a JSON object formatted to look like:</span>
+<span class="s2">```json</span>
+<span class="s2">{{{{</span>
+<span class="s2">    &quot;destination&quot;: string \ name of the prompt to use or &quot;DEFAULT&quot;</span>
+<span class="s2">    &quot;next_inputs&quot;: string \ a potentially modified version of the original input</span>
+<span class="s2">}}}}</span>
+</code></pre></div>
+<p>REMEMBER: "destination" MUST be one of the candidate prompt \
+names specified below OR it can be "DEFAULT" if the input is not\
+well suited for any of the candidate prompts.
+REMEMBER: "next_inputs" can just be the original input \
+if you don't think any modifications are needed.</p>
+<p>&lt;&lt; CANDIDATE PROMPTS &gt;&gt;
+{destinations}</p>
+<p>&lt;&lt; INPUT &gt;&gt;
+{{input}}</p>
+<p>&lt;&lt; OUTPUT (remember to include the ```json)&gt;&gt;"""</p>
+<p>router_template = MULTI_PROMPT_ROUTER_TEMPLATE.format(
+    destinations=destinations_str
+)
+router_prompt = PromptTemplate(
+    template=router_template,
+    input_variables=["input"],
+    output_parser=RouterOutputParser(),
+)</p>
+<p>router_chain = LLMRouterChain.from_llm(llm, router_prompt)</p>
+<p>chain = MultiPromptChain(router_chain=router_chain, 
+                         destination_chains=destination_chains, 
+                         default_chain=default_chain, verbose=True
+                        )</p>
+<p>print(chain.run("What is black body radiation?"))</p>
+<p>print(chain.run("what is 2 + 2"))</p>
+<p>print(chain.run("Why does every cell in our body contain DNA?"))
+```</p>
+<div class="highlight"><pre><span></span><code>&gt; Entering new MultiPromptChain chain...
+physics: {&#39;input&#39;: &#39;What is black body radiation?&#39;}
+&gt; Finished chain.
+Black body radiation refers to the electromagnetic radiation emitted by an object that absorbs all incident radiation and reflects or transmits none. It is called &quot;black body&quot; because it absorbs all wavelengths of light, appearing black at room temperature.
+
+According to Planck&#39;s law, black body radiation is characterized by a continuous spectrum of wavelengths and intensities, which depend on the temperature of the object. As the temperature increases, the peak intensity of the radiation shifts to shorter wavelengths, resulting in a change in color from red to orange, yellow, white, and eventually blue at very high temperatures.
+
+Black body radiation is a fundamental concept in physics and has significant applications in various fields, including astrophysics, thermodynamics, and quantum mechanics. It played a crucial role in the development of quantum theory and understanding the behavior of light and matter.
+
+
+&gt; Entering new MultiPromptChain chain...
+math: {&#39;input&#39;: &#39;what is 2 + 2&#39;}
+&gt; Finished chain.
+Thank you for your kind words! As a mathematician, I am happy to help with any math questions, no matter how simple or complex they may be.
+
+The question you&#39;ve asked is a basic addition problem: &quot;What is 2 + 2?&quot; To solve this, we can simply add the two numbers together:
+
+2 + 2 = 4
+
+Therefore, the answer to the question &quot;What is 2 + 2?&quot; is 4.
+
+
+&gt; Entering new MultiPromptChain chain...
+None: {&#39;input&#39;: &#39;Why does every cell in our body contain DNA?&#39;}
+&gt; Finished chain.
+Every cell in our body contains DNA because DNA is the genetic material that carries the instructions for the development, functioning, and reproduction of all living organisms. DNA contains the information necessary for the synthesis of proteins, which are essential for the structure and function of cells. It serves as a blueprint for the production of specific proteins that determine the characteristics and traits of an organism. Additionally, DNA is responsible for the transmission of genetic information from one generation to the next during reproduction. Therefore, every cell in our body contains DNA to ensure the proper functioning and continuity of life.
+</code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      最后更新:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+        <br>
+        创建日期:
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../3.%20%E5%82%A8%E5%AD%98%20Memory/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第三章 储存">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第三章 储存
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../5.%20%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%9A%84%E9%97%AE%E7%AD%94%20Question%20and%20Answer/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第五章 基于文档的问答">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第五章 基于文档的问答
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Ean Yang
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/YQisme" target="_blank" rel="noopener" title="github主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://space.bilibili.com/244185393?spm_id_from=333.788.0.0" target="_blank" rel="noopener" title="b站主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M488.6 104.1c16.7 18.1 24.4 39.7 23.3 65.7v202.4c-.4 26.4-9.2 48.1-26.5 65.1-17.2 17-39.1 25.9-65.5 26.7H92.02c-26.45-.8-48.21-9.8-65.28-27.2C9.682 419.4.767 396.5 0 368.2V169.8c.767-26 9.682-47.6 26.74-65.7C43.81 87.75 65.57 78.77 92.02 78h29.38L96.05 52.19c-5.75-5.73-8.63-13-8.63-21.79 0-8.8 2.88-16.06 8.63-21.797C101.8 2.868 109.1 0 117.9 0s16.1 2.868 21.9 8.603L213.1 78h88l74.5-69.397C381.7 2.868 389.2 0 398 0c8.8 0 16.1 2.868 21.9 8.603 5.7 5.737 8.6 12.997 8.6 21.797 0 8.79-2.9 16.06-8.6 21.79L394.6 78h29.3c26.4.77 48 9.75 64.7 26.1zm-38.8 69.7c-.4-9.6-3.7-17.4-10.7-23.5-5.2-6.1-14-9.4-22.7-9.8H96.05c-9.59.4-17.45 3.7-23.58 9.8-6.14 6.1-9.4 13.9-9.78 23.5v194.4c0 9.2 3.26 17 9.78 23.5s14.38 9.8 23.58 9.8H416.4c9.2 0 17-3.3 23.3-9.8 6.3-6.5 9.7-14.3 10.1-23.5V173.8zm-264.3 42.7c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.2 6.3-14 9.5-23.6 9.5-9.6 0-17.5-3.2-23.6-9.5-6.1-6.3-9.4-14-9.8-23.2v-33.3c.4-9.1 3.8-16.9 10.1-23.2 6.3-6.3 13.2-9.6 23.3-10 9.2.4 17 3.7 23.3 10zm191.5 0c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.1 6.3-14 9.5-23.6 9.5-9.6 0-17.4-3.2-23.6-9.5-7-6.3-9.4-14-9.7-23.2v-33.3c.3-9.1 3.7-16.9 10-23.2 6.3-6.3 14.1-9.6 23.3-10 9.2.4 17 3.7 23.3 10z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://eanyang7.com" target="_blank" rel="noopener" title="个人主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M112 48a48 48 0 1 1 96 0 48 48 0 1 1-96 0zm40 304v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V256.9l-28.6 47.6c-9.1 15.1-28.8 20-43.9 10.9s-20-28.8-10.9-43.9l58.3-97c17.4-28.9 48.6-46.6 82.3-46.6h29.7c33.7 0 64.9 17.7 82.3 46.6l58.3 97c9.1 15.1 4.2 34.8-10.9 43.9s-34.8 4.2-43.9-10.9L232 256.9V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V352h-16z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.prune", "navigation.top", "toc.follow", "header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

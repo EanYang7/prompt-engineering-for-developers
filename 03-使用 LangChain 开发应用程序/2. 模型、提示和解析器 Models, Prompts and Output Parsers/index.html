@@ -1,0 +1,1714 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="面向开发者的 LLM 入门教程，吴恩达大模型系列课程中文版">
+      
+      
+        <meta name="author" content="Ean Yang">
+      
+      
+        <link rel="canonical" href="https://eanyang7.github.io/prompt-engineering-for-developers/03-%E4%BD%BF%E7%94%A8%20LangChain%20%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/2.%20%E6%A8%A1%E5%9E%8B%E3%80%81%E6%8F%90%E7%A4%BA%E5%92%8C%E8%A7%A3%E6%9E%90%E5%99%A8%20Models%2C%20Prompts%20and%20Output%20Parsers/">
+      
+      
+        <link rel="prev" href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/">
+      
+      
+        <link rel="next" href="../3.%20%E5%82%A8%E5%AD%98%20Memory/">
+      
+      
+      <link rel="icon" href="../../assets/favicon.jpg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.12">
+    
+    
+      
+        <title>第二章 模型，提示和输出解释器 - 面向开发者的 LLM 入门教程</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-header__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            面向开发者的 LLM 入门教程
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第二章 模型，提示和输出解释器
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple"  aria-label="切换为暗黑模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换为暗黑模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="red"  aria-label="切换为浅色模式"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="切换为浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-nav__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    面向开发者的 LLM 入门教程
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    面向开发者的 LLM 入门课程
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%89%8D%E8%A8%80/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    前言
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    环境配置
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../01-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    01 面向开发者的提示工程
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../02-%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%20ChatGPT%20%E7%9A%84%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    02 搭建基于 ChatGPT 的问答系统
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    03 使用 LangChain 开发应用程序
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            03 使用 LangChain 开发应用程序
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第一章 简介
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    第二章 模型，提示和输出解释器
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    第二章 模型，提示和输出解释器
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#openai" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、直接调用OpenAI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、直接调用OpenAI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 计算1+1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 用普通话表达海盗邮件
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#langchainopenai" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、通过LangChain使用OpenAI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、通过LangChain使用OpenAI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 使用提示模版
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2 使用提示模版">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#221" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2.1 用普通话表达海盗邮件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#222" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2.2 用海盗方言回复邮件
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.%20%E5%82%A8%E5%AD%98%20Memory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三章 储存
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.%20%E6%A8%A1%E5%9E%8B%E9%93%BE%20Chains/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第四章 模型链
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5.%20%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%9A%84%E9%97%AE%E7%AD%94%20Question%20and%20Answer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第五章 基于文档的问答
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第六章 评估
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../7.%20%E4%BB%A3%E7%90%86%20Agent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第七章 代理
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8.%20%E6%80%BB%E7%BB%93%20Conclusion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第八章 总结
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../readme/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三部分 使用 LangChain 开发应用程序
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../04-%E4%BD%BF%E7%94%A8%20LangChain%20%E8%AE%BF%E9%97%AE%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    04 使用 LangChain 访问个人数据
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#openai" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、直接调用OpenAI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="一、直接调用OpenAI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.1 计算1+1
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      1.2 用普通话表达海盗邮件
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#langchainopenai" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、通过LangChain使用OpenAI
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="二、通过LangChain使用OpenAI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.1 模型
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2 使用提示模版
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2 使用提示模版">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#221" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2.1 用普通话表达海盗邮件
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#222" class="md-nav__link">
+    <span class="md-ellipsis">
+      2.2.2 用海盗方言回复邮件
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/2. 模型、提示和解析器 Models, Prompts and Output Parsers.md" title="编辑此页" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/2. 模型、提示和解析器 Models, Prompts and Output Parsers.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/></svg>
+    </a>
+  
+
+
+<h1 id="_1">第二章 模型，提示和输出解释器<a class="headerlink" href="#_1" title="Permanent link">⚓︎</a></h1>
+<p>本章我们将简要介绍关于 LLM 开发的一些重要概念：模型、提示与解释器。如果您已完整学习过前面两个部分的内容，对这三个概念不会陌生。但是，在 LangChain 的定义中，对这三个概念的定义与使用又与之前有着细微的差别。我们仍然推荐您认真阅读本章，以进一步深入了解 LLM 开发。同时，如果您直接学习本部分的话，本章内容更是重要的基础。</p>
+<p>我们首先向您演示直接调用 OpenAI 的场景，以充分说明为什么我们需要使用 LangChain。</p>
+<h2 id="openai">一、直接调用OpenAI<a class="headerlink" href="#openai" title="Permanent link">⚓︎</a></h2>
+<h3 id="11-11">1.1 计算1+1<a class="headerlink" href="#11-11" title="Permanent link">⚓︎</a></h3>
+<p>我们来看一个简单的例子，直接使用通过 OpenAI 接口封装的函数<code>get_completion</code>来让模型告诉我们：<code>1+1是什么？</code></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">tool</span> <span class="kn">import</span> <span class="n">get_completion</span>
+
+<span class="n">get_completion</span><span class="p">(</span><span class="s2">&quot;1+1是什么？&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&#39;1+1等于2。&#39;
+</code></pre></div>
+<h3 id="12">1.2 用普通话表达海盗邮件<a class="headerlink" href="#12" title="Permanent link">⚓︎</a></h3>
+<p>在上述简单示例中，模型<code>gpt-3.5-turbo</code>为我们提供了关于1+1是什么的答案。而现在，我们进入一个更为丰富和复杂的场景。</p>
+<p>设想一下，你是一家电商公司的员工。你们的客户中有一位名为海盗A的特殊顾客。他在你们的平台上购买了一个榨汁机，目的是为了制作美味的奶昔。但在制作过程中，由于某种原因，奶昔的盖子突然弹开，导致厨房的墙上洒满了奶昔。想象一下这名海盗的愤怒和挫败之情。他用充满海盗特色的英语方言，给你们的客服中心写了一封邮件：<code>customer_email</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="n">customer_email</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">嗯呐，我现在可是火冒三丈，我那个搅拌机盖子竟然飞了出去，把我厨房的墙壁都溅上了果汁！</span>
+<span class="s2">更糟糕的是，保修条款可不包括清理我厨房的费用。</span>
+<span class="s2">伙计，赶紧给我过来！</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<p>在处理来自多元文化背景的顾客时，我们的客服团队可能会遇到某些特殊的语言障碍。如上，我们收到了一名海盗客户的邮件，而他的表达方式对于我们的客服团队来说略显生涩。</p>
+<p>为了解决这一挑战，我们设定了以下两个目标：</p>
+<ul>
+<li>首先，我们希望模型能够将这封充满海盗方言的邮件翻译成普通话，这样客服团队就能更容易地理解其内容。</li>
+<li>其次，在进行翻译时，我们期望模型能采用平和和尊重的语气，这不仅能确保信息准确传达，还能保持与顾客之间的和谐关系。</li>
+</ul>
+<p>为了指导模型的输出，我们定义了一个文本表达风格标签，简称为<code>style</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 普通话 + 平静、尊敬的语调</span>
+<span class="n">style</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;正式普通话 </span><span class="se">\</span>
+<span class="s2">用一个平静、尊敬、有礼貌的语调</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<p>下一步我们需要做的是将<code>customer_email</code>和<code>style</code>结合起来构造我们的提示:<code>prompt</code></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 要求模型根据给出的语调进行转化</span>
+<span class="n">prompt</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;把由三个反引号分隔的文本</span><span class="se">\</span>
+<span class="s2">翻译成一种</span><span class="si">{</span><span class="n">style</span><span class="si">}</span><span class="s2">风格。</span>
+<span class="s2">文本: ```</span><span class="si">{</span><span class="n">customer_email</span><span class="si">}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;提示：&quot;</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>提示： 
+ 把由三个反引号分隔的文本翻译成一种正式普通话 用一个平静、尊敬、有礼貌的语调
+风格。
+文本: ```
+嗯呐，我现在可是火冒三丈，我那个搅拌机盖子竟然飞了出去，把我厨房的墙壁都溅上了果汁！
+更糟糕的是，保修条款可不包括清理我厨房的费用。
+伙计，赶紧给我过来！
+```
+</code></pre></div>
+<p>经过精心设计的<code>prompt</code>已经准备就绪。接下来，只需调用<code>get_completion</code>方法，我们就可以获得期望的输出——那封原汁原味的海盗方言邮件，将被翻译成既平和又尊重的正式普通话表达。</p>
+<div class="highlight"><pre><span></span><code><span class="n">response</span> <span class="o">=</span> <span class="n">get_completion</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>非常抱歉，我现在感到非常愤怒和不满。我的搅拌机盖子竟然飞了出去，导致我厨房的墙壁上都溅满了果汁！更糟糕的是，保修条款并不包括清理我厨房的费用。先生/女士，请您尽快过来处理这个问题！
+</code></pre></div>
+<p>在进行语言风格转换之后，我们可以观察到明显的变化：原本的用词变得更为正式，那些带有极端情绪的表达得到了替代，并且文本中还加入了表示感激的词汇。</p>
+<blockquote>
+<p>小建议：你可以调整并尝试不同的提示，来探索模型能为你带来怎样的创新性输出。每次尝试都可能为你带来意想不到的惊喜！</p>
+</blockquote>
+<h2 id="langchainopenai">二、通过LangChain使用OpenAI<a class="headerlink" href="#langchainopenai" title="Permanent link">⚓︎</a></h2>
+<p>在前面的小节中，我们使用了封装好的函数<code>get_completion</code>，利用 OpenAI 接口成功地对那封充满方言特色的邮件进行了翻译。得到一封采用平和且尊重的语气、并用标准普通话所写的邮件。接下来，我们将尝试使用 LangChain 解决该问题。</p>
+<h3 id="21">2.1 模型<a class="headerlink" href="#21" title="Permanent link">⚓︎</a></h3>
+<p>现在让我们尝试使用LangChain来实现相同的功能。从<code>langchain.chat_models</code>导入<code>OpenAI</code>的对话模型<code>ChatOpenAI</code>。 除去OpenAI以外，<code>langchain.chat_models</code>还集成了其他对话模型，更多细节可以查看 <a href="https://python.langchain.com/en/latest/modules/models/chat/integrations.html">Langchain 官方文档</a>(https://python.langchain.com/en/latest/modules/models/chat/integrations.html)。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+
+<span class="c1"># 这里我们将参数temperature设置为0.0，从而减少生成答案的随机性。</span>
+<span class="c1"># 如果你想要每次得到不一样的有新意的答案，可以尝试调整该参数。</span>
+<span class="n">chat</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="n">chat</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>ChatOpenAI(cache=None, verbose=False, callbacks=None, callback_manager=None, tags=None, metadata=None, client=&lt;class &#39;openai.api_resources.chat_completion.ChatCompletion&#39;&gt;, model_name=&#39;gpt-3.5-turbo&#39;, temperature=0.0, model_kwargs={}, openai_api_key=&#39;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&#39;, openai_api_base=&#39;&#39;, openai_organization=&#39;&#39;, openai_proxy=&#39;&#39;, request_timeout=None, max_retries=6, streaming=False, n=1, max_tokens=None, tiktoken_model_name=None)
+</code></pre></div>
+<p><br></p>
+<p>上面的输出显示ChatOpenAI的默认模型为<code>gpt-3.5-turbo</code></p>
+<h3 id="22">2.2 使用提示模版<a class="headerlink" href="#22" title="Permanent link">⚓︎</a></h3>
+<p>在前面的例子中，我们通过<a href="https://docs.python.org/zh-cn/3/tutorial/inputoutput.html#tut-f-strings">f字符串</a>把Python表达式的值<code>style</code>和<code>customer_email</code>添加到<code>prompt</code>字符串内。</p>
+<p><code>langchain</code>提供了接口方便快速的构造和使用提示。</p>
+<h4 id="221">2.2.1 用普通话表达海盗邮件<a class="headerlink" href="#221" title="Permanent link">⚓︎</a></h4>
+<p>现在我们来看看如何使用<code>langchain</code>来构造提示吧！</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>
+
+<span class="c1"># 首先，构造一个提示模版字符串：`template_string`</span>
+<span class="n">template_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;把由三个反引号分隔的文本</span><span class="se">\</span>
+<span class="s2">翻译成一种</span><span class="si">{style}</span><span class="s2">风格。</span><span class="se">\</span>
+<span class="s2">文本: ```</span><span class="si">{text}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="c1"># 然后，我们调用`ChatPromptTemplatee.from_template()`函数将</span>
+<span class="c1"># 上面的提示模版字符`template_string`转换为提示模版`prompt_template`</span>
+
+<span class="n">prompt_template</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">template_string</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">prompt</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code> input_variables=[&#39;style&#39;, &#39;text&#39;] output_parser=None partial_variables={} template=&#39;把由三个反引号分隔的文本翻译成一种{style}风格。文本: ```{text}```\n&#39; template_format=&#39;f-string&#39; validate_template=True
+</code></pre></div>
+<p><br></p>
+<p>对于给定的<code>customer_style</code>和<code>customer_email</code>, 我们可以使用提示模版<code>prompt_template</code>的<code>format_messages</code>方法生成想要的客户消息<code>customer_messages</code>。</p>
+<p>提示模版<code>prompt_template</code>需要两个输入变量： <code>style</code> 和 <code>text</code>。 这里分别对应 
+- <code>customer_style</code>: 我们想要的顾客邮件风格
+- <code>customer_email</code>: 顾客的原始邮件文本。</p>
+<div class="highlight"><pre><span></span><code><span class="n">customer_style</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;正式普通话 </span><span class="se">\</span>
+<span class="s2">用一个平静、尊敬的语气</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">customer_email</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">嗯呐，我现在可是火冒三丈，我那个搅拌机盖子竟然飞了出去，把我厨房的墙壁都溅上了果汁！</span>
+<span class="s2">更糟糕的是，保修条款可不包括清理我厨房的费用。</span>
+<span class="s2">伙计，赶紧给我过来！</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="c1"># 使用提示模版</span>
+<span class="n">customer_messages</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span>
+                    <span class="n">style</span><span class="o">=</span><span class="n">customer_style</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="n">customer_email</span><span class="p">)</span>
+<span class="c1"># 打印客户消息类型</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;客户消息类型:&quot;</span><span class="p">,</span><span class="nb">type</span><span class="p">(</span><span class="n">customer_messages</span><span class="p">),</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 打印第一个客户消息类型</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;第一个客户客户消息类型类型:&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">customer_messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 打印第一个元素</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;第一个客户客户消息类型类型: &quot;</span><span class="p">,</span> <span class="n">customer_messages</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>客户消息类型:
+ &lt;class &#39;list&#39;&gt;
+
+第一个客户客户消息类型类型:
+ &lt;class &#39;langchain.schema.messages.HumanMessage&#39;&gt;
+
+第一个客户客户消息类型类型: 
+ content=&#39;把由三个反引号分隔的文本翻译成一种正式普通话 用一个平静、尊敬的语气\n风格。文本: ```\n嗯呐，我现在可是火冒三丈，我那个搅拌机盖子竟然飞了出去，把我厨房的墙壁都溅上了果汁！\n更糟糕的是，保修条款可不包括清理我厨房的费用。\n伙计，赶紧给我过来！\n```\n&#39; additional_kwargs={} example=False
+</code></pre></div>
+<p><br></p>
+<p>可以看出
+- <code>customer_messages</code>变量类型为列表(<code>list</code>)
+- 列表里的元素变量类型为langchain自定义消息(<code>langchain.schema.HumanMessage</code>)。</p>
+<p><br></p>
+<p>现在我们可以调用模型部分定义的<code>chat</code>模型来实现转换客户消息风格。</p>
+<div class="highlight"><pre><span></span><code><span class="n">customer_response</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">customer_messages</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">customer_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>非常抱歉，我现在感到非常愤怒。我的搅拌机盖子竟然飞了出去，导致我厨房的墙壁上都溅满了果汁！更糟糕的是，保修条款并不包括清理我厨房的费用。伙计，请你尽快过来帮我解决这个问题！
+</code></pre></div>
+<h4 id="222">2.2.2 用海盗方言回复邮件<a class="headerlink" href="#222" title="Permanent link">⚓︎</a></h4>
+<p>到目前为止，我们已经实现了在前一部分的任务。接下来，我们更进一步，将客服人员回复的消息，转换为海盗风格英语，并确保消息比较有礼貌。 这里，我们可以继续使用起前面构造的的langchain提示模版，来获得我们回复消息提示。</p>
+<div class="highlight"><pre><span></span><code><span class="n">service_reply</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;嘿，顾客， </span><span class="se">\</span>
+<span class="s2">保修不包括厨房的清洁费用， </span><span class="se">\</span>
+<span class="s2">因为您在启动搅拌机之前 </span><span class="se">\</span>
+<span class="s2">忘记盖上盖子而误用搅拌机, </span><span class="se">\</span>
+<span class="s2">这是您的错。 </span><span class="se">\</span>
+<span class="s2">倒霉！ 再见！</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">service_style_pirate</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">一个有礼貌的语气 </span><span class="se">\</span>
+<span class="s2">使用海盗风格</span><span class="se">\</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">service_messages</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">service_style_pirate</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="n">service_reply</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">service_messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code> 把由三个反引号分隔的文本翻译成一种一个有礼貌的语气 使用海盗风格风格。文本: ```嘿，顾客， 保修不包括厨房的清洁费用， 因为您在启动搅拌机之前 忘记盖上盖子而误用搅拌机, 这是您的错。 倒霉！ 再见！
+```
+</code></pre></div>
+<p>```python</p>
+<h1 id="chat">调用模型部分定义的chat模型来转换回复消息风格<a class="headerlink" href="#chat" title="Permanent link">⚓︎</a></h1>
+<p>service_response = chat(service_messages)
+print(service_response.content)
+<div class="highlight"><pre><span></span><code>    嘿，尊贵的客户啊，保修可不包括厨房的清洁费用，因为您在启动搅拌机之前竟然忘记盖上盖子而误用了搅拌机，这可是您的疏忽之过啊。真是倒霉透顶啊！祝您一路顺风！
+
+
+#### 2.2.3 为什么需要提示模版
+
+在应用于比较复杂的场景时，提示可能会非常长并且包含涉及许多细节。**使用提示模版，可以让我们更为方便地重复使用设计好的提示**。英文版提示2.2.3 给出了作业的提示模版案例：学生们线上学习并提交作业，通过提示来实现对学生的提交的作业的评分。
+
+此外，LangChain还提供了提示模版用于一些常用场景。比如自动摘要、问答、连接到SQL数据库、连接到不同的API。通过使用LangChain内置的提示模版，你可以快速建立自己的大模型应用，而不需要花时间去设计和构造提示。
+
+最后，我们在建立大模型应用时，通常希望模型的输出为给定的格式，比如在输出使用特定的关键词来让输出结构化。英文版提示2.2.3 给出了使用大模型进行链式思考推理结果示例 -- 对于问题：*What is the elevation range for the area that the eastern sector of the Colorado orogeny extends into?* 通过使用LangChain库函数，输出采用&quot;Thought&quot;（思考）、&quot;Action&quot;（行动）、&quot;Observation&quot;（观察）作为链式思考推理的关键词，让输出结构化。
+
+### 2.3 输出解析器
+
+#### 2.3.1 不使用输出解释器提取客户评价中的信息
+
+对于给定的评价`customer_review`, 我们希望提取信息，并按以下格式输出：
+
+```json
+{
+  &quot;gift&quot;: False,
+  &quot;delivery_days&quot;: 5,
+  &quot;price_value&quot;: &quot;pretty affordable!&quot;
+}
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>
+
+<span class="n">customer_review</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">这款吹叶机非常神奇。 它有四个设置：</span><span class="se">\</span>
+<span class="s2">吹蜡烛、微风、风城、龙卷风。 </span><span class="se">\</span>
+<span class="s2">两天后就到了，正好赶上我妻子的</span><span class="se">\</span>
+<span class="s2">周年纪念礼物。 </span><span class="se">\</span>
+<span class="s2">我想我的妻子会喜欢它到说不出话来。 </span><span class="se">\</span>
+<span class="s2">到目前为止，我是唯一一个使用它的人，而且我一直</span><span class="se">\</span>
+<span class="s2">每隔一天早上用它来清理草坪上的叶子。 </span><span class="se">\</span>
+<span class="s2">它比其他吹叶机稍微贵一点，</span><span class="se">\</span>
+<span class="s2">但我认为它的额外功能是值得的。</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">review_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">对于以下文本，请从中提取以下信息：</span>
+
+<span class="s2">礼物：该商品是作为礼物送给别人的吗？ </span><span class="se">\</span>
+<span class="s2">如果是，则回答 是的；如果否或未知，则回答 不是。</span>
+
+<span class="s2">交货天数：产品需要多少天</span><span class="se">\</span>
+<span class="s2">到达？ 如果没有找到该信息，则输出-1。</span>
+
+<span class="s2">价钱：提取有关价值或价格的任何句子，</span><span class="se">\</span>
+<span class="s2">并将它们输出为逗号分隔的 Python 列表。</span>
+
+<span class="s2">使用以下键将输出格式化为 JSON：</span>
+<span class="s2">礼物</span>
+<span class="s2">交货天数</span>
+<span class="s2">价钱</span>
+
+<span class="s2">文本: </span><span class="si">{text}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">prompt_template</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">review_template</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;提示模版：&quot;</span><span class="p">,</span> <span class="n">prompt_template</span><span class="p">)</span>
+
+
+<span class="n">messages</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">customer_review</span><span class="p">)</span>
+
+
+<span class="n">chat</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;结果类型:&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;结果:&quot;</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>提示模版： 
+ input_variables=[&#39;text&#39;] output_parser=None partial_variables={} messages=[HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=[&#39;text&#39;], output_parser=None, partial_variables={}, template=&#39;对于以下文本，请从中提取以下信息：\n\n礼物：该商品是作为礼物送给别人的吗？ 如果是，则回答 是的；如果否或未知，则回答 不是。\n\n交货天数：产品需要多少天到达？ 如果没有找到该信息，则输出-1。\n\n价钱：提取有关价值或价格的任何句子，并将它们输出为逗号分隔的 Python 列表。\n\n使用以下键将输出格式化为 JSON：\n礼物\n交货天数\n价钱\n\n文本: {text}\n&#39;, template_format=&#39;f-string&#39;, validate_template=True), additional_kwargs={})]
+
+结果类型:
+ &lt;class &#39;str&#39;&gt;
+
+结果:
+ {
+  &quot;礼物&quot;: &quot;是的&quot;,
+  &quot;交货天数&quot;: 2,
+  &quot;价钱&quot;: [&quot;它比其他吹叶机稍微贵一点&quot;]
+}
+</code></pre></div>
+<p>可以看出 <code>response.content</code>类型为字符串（<code>str</code>），而并非字典(<code>dict</code>), 如果想要从中更方便的提取信息，我们需要使用<code>Langchain</code>中的输出解释器。</p>
+<h4 id="232">2.3.2 使用输出解析器提取客户评价中的信息<a class="headerlink" href="#232" title="Permanent link">⚓︎</a></h4>
+<p>接下来，我们将展示如何使用输出解释器。</p>
+<div class="highlight"><pre><span></span><code><span class="n">review_template_2</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">对于以下文本，请从中提取以下信息：：</span>
+
+<span class="s2">礼物：该商品是作为礼物送给别人的吗？</span>
+<span class="s2">如果是，则回答 是的；如果否或未知，则回答 不是。</span>
+
+<span class="s2">交货天数：产品到达需要多少天？ 如果没有找到该信息，则输出-1。</span>
+
+<span class="s2">价钱：提取有关价值或价格的任何句子，并将它们输出为逗号分隔的 Python 列表。</span>
+
+<span class="s2">文本: </span><span class="si">{text}</span>
+
+<span class="si">{format_instructions}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">review_template_2</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">langchain.output_parsers</span> <span class="kn">import</span> <span class="n">ResponseSchema</span>
+<span class="kn">from</span> <span class="nn">langchain.output_parsers</span> <span class="kn">import</span> <span class="n">StructuredOutputParser</span>
+
+<span class="n">gift_schema</span> <span class="o">=</span> <span class="n">ResponseSchema</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;礼物&quot;</span><span class="p">,</span>
+                             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;这件物品是作为礼物送给别人的吗？</span><span class="se">\</span>
+<span class="s2">                            如果是，则回答 是的，</span><span class="se">\</span>
+<span class="s2">                            如果否或未知，则回答 不是。&quot;</span><span class="p">)</span>
+
+<span class="n">delivery_days_schema</span> <span class="o">=</span> <span class="n">ResponseSchema</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;交货天数&quot;</span><span class="p">,</span>
+                                      <span class="n">description</span><span class="o">=</span><span class="s2">&quot;产品需要多少天才能到达？</span><span class="se">\</span>
+<span class="s2">                                      如果没有找到该信息，则输出-1。&quot;</span><span class="p">)</span>
+
+<span class="n">price_value_schema</span> <span class="o">=</span> <span class="n">ResponseSchema</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;价钱&quot;</span><span class="p">,</span>
+                                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;提取有关价值或价格的任何句子，</span><span class="se">\</span>
+<span class="s2">                                    并将它们输出为逗号分隔的 Python 列表&quot;</span><span class="p">)</span>
+
+
+<span class="n">response_schemas</span> <span class="o">=</span> <span class="p">[</span><span class="n">gift_schema</span><span class="p">,</span> 
+                    <span class="n">delivery_days_schema</span><span class="p">,</span>
+                    <span class="n">price_value_schema</span><span class="p">]</span>
+<span class="n">output_parser</span> <span class="o">=</span> <span class="n">StructuredOutputParser</span><span class="o">.</span><span class="n">from_response_schemas</span><span class="p">(</span><span class="n">response_schemas</span><span class="p">)</span>
+<span class="n">format_instructions</span> <span class="o">=</span> <span class="n">output_parser</span><span class="o">.</span><span class="n">get_format_instructions</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;输出格式规定：&quot;</span><span class="p">,</span><span class="n">format_instructions</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>输出格式规定： 
+ The output should be a markdown code snippet formatted in the following schema, including the leading and trailing &quot;```json&quot; and &quot;```&quot;:
+
+```json
+{
+    &quot;礼物&quot;: string  // 这件物品是作为礼物送给别人的吗？                            如果是，则回答 是的，                            如果否或未知，则回答 不是。
+    &quot;交货天数&quot;: string  // 产品需要多少天才能到达？                                      如果没有找到该信息，则输出-1。
+    &quot;价钱&quot;: string  // 提取有关价值或价格的任何句子，                                    并将它们输出为逗号分隔的 Python 列表
+}
+```
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">messages</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">customer_review</span><span class="p">,</span> <span class="n">format_instructions</span><span class="o">=</span><span class="n">format_instructions</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;第一条客户消息:&quot;</span><span class="p">,</span><span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>第一条客户消息:
+ 对于以下文本，请从中提取以下信息：：
+
+礼物：该商品是作为礼物送给别人的吗？
+如果是，则回答 是的；如果否或未知，则回答 不是。
+
+交货天数：产品到达需要多少天？ 如果没有找到该信息，则输出-1。
+
+价钱：提取有关价值或价格的任何句子，并将它们输出为逗号分隔的 Python 列表。
+
+文本: 这款吹叶机非常神奇。 它有四个设置：吹蜡烛、微风、风城、龙卷风。 两天后就到了，正好赶上我妻子的周年纪念礼物。 我想我的妻子会喜欢它到说不出话来。 到目前为止，我是唯一一个使用它的人，而且我一直每隔一天早上用它来清理草坪上的叶子。 它比其他吹叶机稍微贵一点，但我认为它的额外功能是值得的。
+
+
+The output should be a markdown code snippet formatted in the following schema, including the leading and trailing &quot;```json&quot; and &quot;```&quot;:
+
+```json
+{
+    &quot;礼物&quot;: string  // 这件物品是作为礼物送给别人的吗？                            如果是，则回答 是的，                            如果否或未知，则回答 不是。
+    &quot;交货天数&quot;: string  // 产品需要多少天才能到达？                                      如果没有找到该信息，则输出-1。
+    &quot;价钱&quot;: string  // 提取有关价值或价格的任何句子，                                    并将它们输出为逗号分隔的 Python 列表
+}
+```
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="n">response</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;结果类型:&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;结果:&quot;</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>结果类型:
+ &lt;class &#39;str&#39;&gt;
+
+结果:
+ ```json
+{
+    &quot;礼物&quot;: &quot;不是&quot;,
+    &quot;交货天数&quot;: &quot;两天后就到了&quot;,
+    &quot;价钱&quot;: &quot;它比其他吹叶机稍微贵一点&quot;
+}
+```
+</code></pre></div>
+<p>```python
+output_dict = output_parser.parse(response.content)</p>
+<p>print("解析后的结果类型:", type(output_dict))
+print("解析后的结果:", output_dict)
+<div class="highlight"><pre><span></span><code>    解析后的结果类型:
+     &lt;class &#39;dict&#39;&gt;
+
+    解析后的结果:
+     {&#39;礼物&#39;: &#39;不是&#39;, &#39;交货天数&#39;: &#39;两天后就到了&#39;, &#39;价钱&#39;: &#39;它比其他吹叶机稍微贵一点&#39;}
+
+
+`output_dict`类型为字典(`dict`), 可直接使用`get`方法。这样的输出更方便下游任务的处理。
+
+## 三、英文版提示
+
+**1.2 用美式英语表达海盗邮件**
+
+
+```python
+customer_email = &quot;&quot;&quot;
+Arrr, I be fuming that me blender lid \
+flew off and splattered me kitchen walls \
+with smoothie! And to make matters worse,\
+the warranty don&#39;t cover the cost of \
+cleaning up me kitchen. I need yer help \
+right now, matey!
+&quot;&quot;&quot;
+
+# 美式英语 + 平静、尊敬的语调
+style = &quot;&quot;&quot;American English \
+in a calm and respectful tone
+&quot;&quot;&quot;
+
+
+# 要求模型根据给出的语调进行转化
+prompt = f&quot;&quot;&quot;Translate the text \
+that is delimited by triple backticks 
+into a style that is {style}.
+text: ```{customer_email}```
+&quot;&quot;&quot;
+
+print(&quot;提示：&quot;, prompt)
+
+response = get_completion(prompt)
+
+print(&quot;美式英语表达的海盗邮件: &quot;, response)
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code>提示： 
+ Translate the text that is delimited by triple backticks 
+into a style that is American English in a calm and respectful tone
+.
+text: ```
+Arrr, I be fuming that me blender lid flew off and splattered me kitchen walls with smoothie! And to make matters worse,the warranty don&#39;t cover the cost of cleaning up me kitchen. I need yer help right now, matey!
+```
+
+
+美式英语表达的海盗邮件:  
+ I am quite frustrated that my blender lid flew off and made a mess of my kitchen walls with smoothie! To add to my frustration, the warranty does not cover the cost of cleaning up my kitchen. I kindly request your assistance at this moment, my friend.
+</code></pre></div>
+<p><strong>2.2.1 用标准美式英语表达海盗邮件</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>
+
+<span class="n">template_string</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Translate the text </span><span class="se">\</span>
+<span class="s2">that is delimited by triple backticks </span><span class="se">\</span>
+<span class="s2">into a style that is </span><span class="si">{style}</span><span class="s2">. </span><span class="se">\</span>
+<span class="s2">text: ```</span><span class="si">{text}</span><span class="s2">```</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="n">prompt_template</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">template_string</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;提示模版中的第一个提示：&quot;</span><span class="p">,</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">prompt</span><span class="p">)</span>
+
+<span class="n">customer_style</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;American English </span><span class="se">\</span>
+<span class="s2">in a calm and respectful tone</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="n">customer_email</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">Arrr, I be fuming that me blender lid </span><span class="se">\</span>
+<span class="s2">flew off and splattered me kitchen walls </span><span class="se">\</span>
+<span class="s2">with smoothie! And to make matters worse, </span><span class="se">\</span>
+<span class="s2">the warranty don&#39;t cover the cost of </span><span class="se">\</span>
+<span class="s2">cleaning up me kitchen. I need yer help </span><span class="se">\</span>
+<span class="s2">right now, matey!</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">customer_messages</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span>
+                    <span class="n">style</span><span class="o">=</span><span class="n">customer_style</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="n">customer_email</span><span class="p">)</span>
+
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;用提示模版中生成的第一条客户消息：&quot;</span><span class="p">,</span> <span class="n">customer_messages</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>提示模版中的第一个提示： 
+ input_variables=[&#39;style&#39;, &#39;text&#39;] output_parser=None partial_variables={} template=&#39;Translate the text that is delimited by triple backticks into a style that is {style}. text: ```{text}```\n&#39; template_format=&#39;f-string&#39; validate_template=True
+
+用提示模版中生成的第一条客户消息： 
+ content=&quot;Translate the text that is delimited by triple backticks into a style that is American English in a calm and respectful tone\n. text: ```\nArrr, I be fuming that me blender lid flew off and splattered me kitchen walls with smoothie! And to make matters worse, the warranty don&#39;t cover the cost of cleaning up me kitchen. I need yer help right now, matey!\n```\n&quot; additional_kwargs={} example=False
+</code></pre></div>
+<p><strong>2.2.2 用海盗方言回复邮件</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">service_reply</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;Hey there customer, </span><span class="se">\</span>
+<span class="s2">the warranty does not cover </span><span class="se">\</span>
+<span class="s2">cleaning expenses for your kitchen </span><span class="se">\</span>
+<span class="s2">because it&#39;s your fault that </span><span class="se">\</span>
+<span class="s2">you misused your blender </span><span class="se">\</span>
+<span class="s2">by forgetting to put the lid on before </span><span class="se">\</span>
+<span class="s2">starting the blender. </span><span class="se">\</span>
+<span class="s2">Tough luck! See ya!</span>
+<span class="s2">&quot;&quot;&quot;</span>
+<span class="n">service_style_pirate</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">a polite tone </span><span class="se">\</span>
+<span class="s2">that speaks in English Pirate</span><span class="se">\</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">service_messages</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span>
+    <span class="n">style</span><span class="o">=</span><span class="n">service_style_pirate</span><span class="p">,</span>
+    <span class="n">text</span><span class="o">=</span><span class="n">service_reply</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;提示模版中的第一条客户消息内容：&quot;</span><span class="p">,</span> <span class="n">service_messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+<span class="n">service_response</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">service_messages</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;模型得到的回复邮件：&quot;</span><span class="p">,</span> <span class="n">service_response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>提示模版中的第一条客户消息内容： 
+ Translate the text that is delimited by triple backticks into a style that is a polite tone that speaks in English Pirate. text: ```Hey there customer, the warranty does not cover cleaning expenses for your kitchen because it&#39;s your fault that you misused your blender by forgetting to put the lid on before starting the blender. Tough luck! See ya!
+```
+
+
+模型得到的回复内容： 
+ Ahoy there, matey! I regret to inform ye that the warranty be not coverin&#39; the costs o&#39; cleanin&#39; yer galley, as &#39;tis yer own fault fer misusin&#39; yer blender by forgettin&#39; to secure the lid afore startin&#39; it. Aye, tough luck, me heartie! Fare thee well!
+</code></pre></div>
+<p><strong>2.3.1 不使用输出解释器提取客户评价中的信息</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">customer_review</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">This leaf blower is pretty amazing.  It has four settings:</span><span class="se">\</span>
+<span class="s2">candle blower, gentle breeze, windy city, and tornado. </span><span class="se">\</span>
+<span class="s2">It arrived in two days, just in time for my wife&#39;s </span><span class="se">\</span>
+<span class="s2">anniversary present. </span><span class="se">\</span>
+<span class="s2">I think my wife liked it so much she was speechless. </span><span class="se">\</span>
+<span class="s2">So far I&#39;ve been the only one using it, and I&#39;ve been </span><span class="se">\</span>
+<span class="s2">using it every other morning to clear the leaves on our lawn. </span><span class="se">\</span>
+<span class="s2">It&#39;s slightly more expensive than the other leaf blowers </span><span class="se">\</span>
+<span class="s2">out there, but I think it&#39;s worth it for the extra features.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">review_template</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">For the following text, extract the following information:</span>
+
+<span class="s2">gift: Was the item purchased as a gift for someone else? </span><span class="se">\</span>
+<span class="s2">Answer True if yes, False if not or unknown.</span>
+
+<span class="s2">delivery_days: How many days did it take for the product </span><span class="se">\</span>
+<span class="s2">to arrive? If this information is not found, output -1.</span>
+
+<span class="s2">price_value: Extract any sentences about the value or price,</span><span class="se">\</span>
+<span class="s2">and output them as a comma separated Python list.</span>
+
+<span class="s2">Format the output as JSON with the following keys:</span>
+<span class="s2">gift</span>
+<span class="s2">delivery_days</span>
+<span class="s2">price_value</span>
+
+<span class="s2">text: </span><span class="si">{text}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">langchain.prompts</span> <span class="kn">import</span> <span class="n">ChatPromptTemplate</span>
+<span class="n">prompt_template</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">review_template</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;提示模版：&quot;</span><span class="p">,</span><span class="n">prompt_template</span><span class="p">)</span>
+
+<span class="n">messages</span> <span class="o">=</span> <span class="n">prompt_template</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">customer_review</span><span class="p">)</span>
+
+<span class="n">chat</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;回复内容：&quot;</span><span class="p">,</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>提示模版： 
+ input_variables=[&#39;text&#39;] output_parser=None partial_variables={} messages=[HumanMessagePromptTemplate(prompt=PromptTemplate(input_variables=[&#39;text&#39;], output_parser=None, partial_variables={}, template=&#39;For the following text, extract the following information:\n\ngift: Was the item purchased as a gift for someone else? Answer True if yes, False if not or unknown.\n\ndelivery_days: How many days did it take for the product to arrive? If this information is not found, output -1.\n\nprice_value: Extract any sentences about the value or price,and output them as a comma separated Python list.\n\nFormat the output as JSON with the following keys:\ngift\ndelivery_days\nprice_value\n\ntext: {text}\n&#39;, template_format=&#39;f-string&#39;, validate_template=True), additional_kwargs={})]
+
+回复内容： 
+ {
+  &quot;gift&quot;: false,
+  &quot;delivery_days&quot;: 2,
+  &quot;price_value&quot;: [&quot;It&#39;s slightly more expensive than the other leaf blowers out there, but I think it&#39;s worth it for the extra features.&quot;]
+}
+</code></pre></div>
+<p><strong>2.3.2 使用输出解析器提取客户评价中的信息</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">review_template_2</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s2">For the following text, extract the following information:</span>
+
+<span class="s2">gift: Was the item purchased as a gift for someone else? </span><span class="se">\</span>
+<span class="s2">Answer True if yes, False if not or unknown.</span>
+
+<span class="s2">delivery_days: How many days did it take for the product</span><span class="se">\</span>
+<span class="s2">to arrive? If this information is not found, output -1.</span>
+
+<span class="s2">price_value: Extract any sentences about the value or price,</span><span class="se">\</span>
+<span class="s2">and output them as a comma separated Python list.</span>
+
+<span class="s2">text: </span><span class="si">{text}</span>
+
+<span class="si">{format_instructions}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">prompt</span> <span class="o">=</span> <span class="n">ChatPromptTemplate</span><span class="o">.</span><span class="n">from_template</span><span class="p">(</span><span class="n">template</span><span class="o">=</span><span class="n">review_template_2</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">langchain.output_parsers</span> <span class="kn">import</span> <span class="n">ResponseSchema</span>
+<span class="kn">from</span> <span class="nn">langchain.output_parsers</span> <span class="kn">import</span> <span class="n">StructuredOutputParser</span>
+
+<span class="n">gift_schema</span> <span class="o">=</span> <span class="n">ResponseSchema</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;gift&quot;</span><span class="p">,</span>
+                             <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Was the item purchased</span><span class="se">\</span>
+<span class="s2">                             as a gift for someone else? </span><span class="se">\</span>
+<span class="s2">                             Answer True if yes,</span><span class="se">\</span>
+<span class="s2">                             False if not or unknown.&quot;</span><span class="p">)</span>
+
+<span class="n">delivery_days_schema</span> <span class="o">=</span> <span class="n">ResponseSchema</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;delivery_days&quot;</span><span class="p">,</span>
+                                      <span class="n">description</span><span class="o">=</span><span class="s2">&quot;How many days</span><span class="se">\</span>
+<span class="s2">                                      did it take for the product</span><span class="se">\</span>
+<span class="s2">                                      to arrive? If this </span><span class="se">\</span>
+<span class="s2">                                      information is not found,</span><span class="se">\</span>
+<span class="s2">                                      output -1.&quot;</span><span class="p">)</span>
+
+<span class="n">price_value_schema</span> <span class="o">=</span> <span class="n">ResponseSchema</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;price_value&quot;</span><span class="p">,</span>
+                                    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Extract any</span><span class="se">\</span>
+<span class="s2">                                    sentences about the value or </span><span class="se">\</span>
+<span class="s2">                                    price, and output them as a </span><span class="se">\</span>
+<span class="s2">                                    comma separated Python list.&quot;</span><span class="p">)</span>
+
+
+<span class="n">response_schemas</span> <span class="o">=</span> <span class="p">[</span><span class="n">gift_schema</span><span class="p">,</span> 
+                    <span class="n">delivery_days_schema</span><span class="p">,</span>
+                    <span class="n">price_value_schema</span><span class="p">]</span>
+<span class="n">output_parser</span> <span class="o">=</span> <span class="n">StructuredOutputParser</span><span class="o">.</span><span class="n">from_response_schemas</span><span class="p">(</span><span class="n">response_schemas</span><span class="p">)</span>
+<span class="n">format_instructions</span> <span class="o">=</span> <span class="n">output_parser</span><span class="o">.</span><span class="n">get_format_instructions</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">format_instructions</span><span class="p">)</span>
+
+<span class="n">messages</span> <span class="o">=</span> <span class="n">prompt</span><span class="o">.</span><span class="n">format_messages</span><span class="p">(</span><span class="n">text</span><span class="o">=</span><span class="n">customer_review</span><span class="p">,</span> <span class="n">format_instructions</span><span class="o">=</span><span class="n">format_instructions</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;提示消息：&quot;</span><span class="p">,</span> <span class="n">messages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">chat</span><span class="p">(</span><span class="n">messages</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;回复内容：&quot;</span><span class="p">,</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+<span class="n">output_dict</span> <span class="o">=</span> <span class="n">output_parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;解析后的结果类型:&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">output_dict</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;解析后的结果:&quot;</span><span class="p">,</span> <span class="n">output_dict</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>The output should be a markdown code snippet formatted in the following schema, including the leading and trailing &quot;```json&quot; and &quot;```&quot;:
+
+```json
+{
+    &quot;gift&quot;: string  // Was the item purchased                             as a gift for someone else?                              Answer True if yes,                             False if not or unknown.
+    &quot;delivery_days&quot;: string  // How many days                                      did it take for the product                                      to arrive? If this                                       information is not found,                                      output -1.
+    &quot;price_value&quot;: string  // Extract any                                    sentences about the value or                                     price, and output them as a                                     comma separated Python list.
+}
+```
+
+提示消息： 
+ For the following text, extract the following information:
+
+gift: Was the item purchased as a gift for someone else? Answer True if yes, False if not or unknown.
+
+delivery_days: How many days did it take for the productto arrive? If this information is not found, output -1.
+
+price_value: Extract any sentences about the value or price,and output them as a comma separated Python list.
+
+text: This leaf blower is pretty amazing.  It has four settings:candle blower, gentle breeze, windy city, and tornado. It arrived in two days, just in time for my wife&#39;s anniversary present. I think my wife liked it so much she was speechless. So far I&#39;ve been the only one using it, and I&#39;ve been using it every other morning to clear the leaves on our lawn. It&#39;s slightly more expensive than the other leaf blowers out there, but I think it&#39;s worth it for the extra features.
+
+
+The output should be a markdown code snippet formatted in the following schema, including the leading and trailing &quot;```json&quot; and &quot;```&quot;:
+
+```json
+{
+    &quot;gift&quot;: string  // Was the item purchased                             as a gift for someone else?                              Answer True if yes,                             False if not or unknown.
+    &quot;delivery_days&quot;: string  // How many days                                      did it take for the product                                      to arrive? If this                                       information is not found,                                      output -1.
+    &quot;price_value&quot;: string  // Extract any                                    sentences about the value or                                     price, and output them as a                                     comma separated Python list.
+}
+```
+
+
+回复内容： 
+ ```json
+{
+    &quot;gift&quot;: false,
+    &quot;delivery_days&quot;: &quot;2&quot;,
+    &quot;price_value&quot;: &quot;It&#39;s slightly more expensive than the other leaf blowers out there, but I think it&#39;s worth it for the extra features.&quot;
+}
+```
+
+解析后的结果类型:
+ &lt;class &#39;dict&#39;&gt;
+
+解析后的结果:
+ {&#39;gift&#39;: False, &#39;delivery_days&#39;: &#39;2&#39;, &#39;price_value&#39;: &quot;It&#39;s slightly more expensive than the other leaf blowers out there, but I think it&#39;s worth it for the extra features.&quot;}
+</code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      最后更新:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+        <br>
+        创建日期:
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第一章 简介">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第一章 简介
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../3.%20%E5%82%A8%E5%AD%98%20Memory/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第三章 储存">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第三章 储存
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Ean Yang
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/YQisme" target="_blank" rel="noopener" title="github主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://space.bilibili.com/244185393?spm_id_from=333.788.0.0" target="_blank" rel="noopener" title="b站主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M488.6 104.1c16.7 18.1 24.4 39.7 23.3 65.7v202.4c-.4 26.4-9.2 48.1-26.5 65.1-17.2 17-39.1 25.9-65.5 26.7H92.02c-26.45-.8-48.21-9.8-65.28-27.2C9.682 419.4.767 396.5 0 368.2V169.8c.767-26 9.682-47.6 26.74-65.7C43.81 87.75 65.57 78.77 92.02 78h29.38L96.05 52.19c-5.75-5.73-8.63-13-8.63-21.79 0-8.8 2.88-16.06 8.63-21.797C101.8 2.868 109.1 0 117.9 0s16.1 2.868 21.9 8.603L213.1 78h88l74.5-69.397C381.7 2.868 389.2 0 398 0c8.8 0 16.1 2.868 21.9 8.603 5.7 5.737 8.6 12.997 8.6 21.797 0 8.79-2.9 16.06-8.6 21.79L394.6 78h29.3c26.4.77 48 9.75 64.7 26.1zm-38.8 69.7c-.4-9.6-3.7-17.4-10.7-23.5-5.2-6.1-14-9.4-22.7-9.8H96.05c-9.59.4-17.45 3.7-23.58 9.8-6.14 6.1-9.4 13.9-9.78 23.5v194.4c0 9.2 3.26 17 9.78 23.5s14.38 9.8 23.58 9.8H416.4c9.2 0 17-3.3 23.3-9.8 6.3-6.5 9.7-14.3 10.1-23.5V173.8zm-264.3 42.7c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.2 6.3-14 9.5-23.6 9.5-9.6 0-17.5-3.2-23.6-9.5-6.1-6.3-9.4-14-9.8-23.2v-33.3c.4-9.1 3.8-16.9 10.1-23.2 6.3-6.3 13.2-9.6 23.3-10 9.2.4 17 3.7 23.3 10zm191.5 0c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.1 6.3-14 9.5-23.6 9.5-9.6 0-17.4-3.2-23.6-9.5-7-6.3-9.4-14-9.7-23.2v-33.3c.3-9.1 3.7-16.9 10-23.2 6.3-6.3 14.1-9.6 23.3-10 9.2.4 17 3.7 23.3 10z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://eanyang7.com" target="_blank" rel="noopener" title="个人主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M112 48a48 48 0 1 1 96 0 48 48 0 1 1-96 0zm40 304v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V256.9l-28.6 47.6c-9.1 15.1-28.8 20-43.9 10.9s-20-28.8-10.9-43.9l58.3-97c17.4-28.9 48.6-46.6 82.3-46.6h29.7c33.7 0 64.9 17.7 82.3 46.6l58.3 97c9.1 15.1 4.2 34.8-10.9 43.9s-34.8 4.2-43.9-10.9L232 256.9V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V352h-16z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.prune", "navigation.top", "toc.follow", "header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>

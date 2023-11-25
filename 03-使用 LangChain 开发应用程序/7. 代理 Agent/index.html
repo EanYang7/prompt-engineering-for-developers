@@ -1,0 +1,1759 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="面向开发者的 LLM 入门教程，吴恩达大模型系列课程中文版">
+      
+      
+        <meta name="author" content="Ean Yang">
+      
+      
+        <link rel="canonical" href="https://eanyang7.github.io/prompt-engineering-for-developers/03-%E4%BD%BF%E7%94%A8%20LangChain%20%E5%BC%80%E5%8F%91%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F/7.%20%E4%BB%A3%E7%90%86%20Agent/">
+      
+      
+        <link rel="prev" href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/">
+      
+      
+        <link rel="next" href="../8.%20%E6%80%BB%E7%BB%93%20Conclusion/">
+      
+      
+      <link rel="icon" href="../../assets/favicon.jpg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.4.12">
+    
+    
+      
+        <title>第七章 代理 - 面向开发者的 LLM 入门教程</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.fad675c6.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.356b1318.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple">
+  
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&"object"==typeof palette.color)for(var key of Object.keys(palette.color))document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-header__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            面向开发者的 LLM 入门教程
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              第七章 代理
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="red" data-md-color-accent="deep-purple"  aria-label="切换为暗黑模式"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="切换为暗黑模式" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5c-.84 0-1.65.15-2.39.42L12 2M3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29L3.34 7m.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14L3.36 17M20.65 7l-1.77 3.79a7.023 7.023 0 0 0-2.38-4.15l4.15.36m-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29L20.64 17M12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44L12 22Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="red"  aria-label="切换为浅色模式"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="切换为浅色模式" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3 3.19.09m3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95 2.06.05m-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="分享" aria-label="分享" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7 0-.24-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91 1.61 0 2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08Z"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="面向开发者的 LLM 入门教程" class="md-nav__button md-logo" aria-label="面向开发者的 LLM 入门教程" data-md-component="logo">
+      
+  <img src="../../assets/logo.jpg" alt="logo">
+
+    </a>
+    面向开发者的 LLM 入门教程
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/EanYang7/prompt-engineering-for-developers" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M186.1 328.7c0 20.9-10.9 55.1-36.7 55.1s-36.7-34.2-36.7-55.1 10.9-55.1 36.7-55.1 36.7 34.2 36.7 55.1zM480 278.2c0 31.9-3.2 65.7-17.5 95-37.9 76.6-142.1 74.8-216.7 74.8-75.8 0-186.2 2.7-225.6-74.8-14.6-29-20.2-63.1-20.2-95 0-41.9 13.9-81.5 41.5-113.6-5.2-15.8-7.7-32.4-7.7-48.8 0-21.5 4.9-32.3 14.6-51.8 45.3 0 74.3 9 108.8 36 29-6.9 58.8-10 88.7-10 27 0 54.2 2.9 80.4 9.2 34-26.7 63-35.2 107.8-35.2 9.8 19.5 14.6 30.3 14.6 51.8 0 16.4-2.6 32.7-7.7 48.2 27.5 32.4 39 72.3 39 114.2zm-64.3 50.5c0-43.9-26.7-82.6-73.5-82.6-18.9 0-37 3.4-56 6-14.9 2.3-29.8 3.2-45.1 3.2-15.2 0-30.1-.9-45.1-3.2-18.7-2.6-37-6-56-6-46.8 0-73.5 38.7-73.5 82.6 0 87.8 80.4 101.3 150.4 101.3h48.2c70.3 0 150.6-13.4 150.6-101.3zm-82.6-55.1c-25.8 0-36.7 34.2-36.7 55.1s10.9 55.1 36.7 55.1 36.7-34.2 36.7-55.1-10.9-55.1-36.7-55.1z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    github仓库
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    面向开发者的 LLM 入门课程
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E5%89%8D%E8%A8%80/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    前言
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../%E7%8E%AF%E5%A2%83%E9%85%8D%E7%BD%AE/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    环境配置
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../01-%E9%9D%A2%E5%90%91%E5%BC%80%E5%8F%91%E8%80%85%E7%9A%84%E6%8F%90%E7%A4%BA%E5%B7%A5%E7%A8%8B/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    01 面向开发者的提示工程
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../02-%E6%90%AD%E5%BB%BA%E5%9F%BA%E4%BA%8E%20ChatGPT%20%E7%9A%84%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    02 搭建基于 ChatGPT 的问答系统
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    03 使用 LangChain 开发应用程序
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            03 使用 LangChain 开发应用程序
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第一章 简介
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../2.%20%E6%A8%A1%E5%9E%8B%E3%80%81%E6%8F%90%E7%A4%BA%E5%92%8C%E8%A7%A3%E6%9E%90%E5%99%A8%20Models%2C%20Prompts%20and%20Output%20Parsers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第二章 模型，提示和输出解释器
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../3.%20%E5%82%A8%E5%AD%98%20Memory/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三章 储存
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../4.%20%E6%A8%A1%E5%9E%8B%E9%93%BE%20Chains/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第四章 模型链
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../5.%20%E5%9F%BA%E4%BA%8E%E6%96%87%E6%A1%A3%E7%9A%84%E9%97%AE%E7%AD%94%20Question%20and%20Answer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第五章 基于文档的问答
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第六章 评估
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    第七章 代理
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    第七章 代理
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#langchainllm-mathwikipedia" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、使用LangChain内置工具llm-math和wikipedia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#langchainpythonrepltool" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、 使用LangChain内置工具PythonREPLTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、 定义自己的工具并在代理中使用
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      四、英文版
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../8.%20%E6%80%BB%E7%BB%93%20Conclusion/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第八章 总结
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../readme/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    第三部分 使用 LangChain 开发应用程序
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+    
+    
+    
+    
+    
+      
+      
+    
+    <li class="md-nav__item md-nav__item--pruned md-nav__item--nested">
+      
+        
+  
+  
+    <a href="../../04-%E4%BD%BF%E7%94%A8%20LangChain%20%E8%AE%BF%E9%97%AE%E4%B8%AA%E4%BA%BA%E6%95%B0%E6%8D%AE/1.%20%E7%AE%80%E4%BB%8B%20Introduction/" class="md-nav__link">
+      
+  
+  <span class="md-ellipsis">
+    04 使用 LangChain 访问个人数据
+  </span>
+  
+
+      
+        <span class="md-nav__icon md-icon"></span>
+      
+    </a>
+  
+
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#langchainllm-mathwikipedia" class="md-nav__link">
+    <span class="md-ellipsis">
+      一、使用LangChain内置工具llm-math和wikipedia
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#langchainpythonrepltool" class="md-nav__link">
+    <span class="md-ellipsis">
+      二、 使用LangChain内置工具PythonREPLTool
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      三、 定义自己的工具并在代理中使用
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      四、英文版
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/7. 代理 Agent.md" title="编辑此页" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/EanYang7/prompt-engineering-for-developers/tree/main/docs/03-使用 LangChain 开发应用程序/7. 代理 Agent.md" title="查看本页的源代码" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5Z"/></svg>
+    </a>
+  
+
+
+<h1 id="_1">第七章 代理<a class="headerlink" href="#_1" title="Permanent link">⚓︎</a></h1>
+<p>大型语言模型（LLMs）非常强大，但它们缺乏“最笨”的计算机程序可以轻松处理的特定能力。LLM 对逻辑推理、计算和检索外部信息的能力较弱，这与最简单的计算机程序形成对比。例如，语言模型无法准确回答简单的计算问题，还有当询问最近发生的事件时，其回答也可能过时或错误，因为无法主动获取最新信息。这是由于当前语言模型仅依赖预训练数据，与外界“断开”。要克服这一缺陷，<code>LangChain</code>框架提出了<code>“代理”(Agent)</code>的解决方案。</p>
+<p><strong>代理作为语言模型的外部模块，可提供计算、逻辑、检索等功能的支持，使语言模型获得异常强大的推理和获取信息的超能力</strong>。</p>
+<p>在本章中，我们将详细介绍代理的工作机制、种类、以及如何在<code>LangChain</code>中将其与语言模型配合，构建功能更全面、智能程度更高的应用程序。代理机制极大扩展了语言模型的边界，是当前提升其智能的重要途径之一。让我们开始学习如何通过代理释放语言模型的最大潜力。</p>
+<h2 id="langchainllm-mathwikipedia">一、使用LangChain内置工具llm-math和wikipedia<a class="headerlink" href="#langchainllm-mathwikipedia" title="Permanent link">⚓︎</a></h2>
+<p>要使用代理 (Agents) ，我们需要三样东西：</p>
+<ul>
+<li>一个基本的 LLM</li>
+<li>我们将要进行交互的工具 Tools</li>
+<li>一个控制交互的代理 (Agents) 。</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">load_tools</span><span class="p">,</span> <span class="n">initialize_agent</span>
+<span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">AgentType</span>
+<span class="kn">from</span> <span class="nn">langchain.python</span> <span class="kn">import</span> <span class="n">PythonREPL</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+</code></pre></div>
+<p>首先，让我们新建一个基本的 LLM </p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 参数temperature设置为0.0，从而减少生成答案的随机性。</span>
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+<p>接下来，初始化<code>工具 Tool</code> ，我们可以创建自定义工具 Tool 或加载预构建工具 Tool。无论哪种情况，工具 Tool 都是一个给定工具 <code>名称 name</code> 和 <code>描述 description</code> 的 实用链。</p>
+<ul>
+<li><code>llm-math</code> 工具结合语言模型和计算器用以进行数学计算</li>
+<li><code>wikipedia</code>工具通过API连接到wikipedia进行搜索查询。</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="n">tools</span> <span class="o">=</span> <span class="n">load_tools</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">&quot;llm-math&quot;</span><span class="p">,</span><span class="s2">&quot;wikipedia&quot;</span><span class="p">],</span> 
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span> <span class="c1">#第一步初始化的模型</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>现在我们有了 LLM 和工具，最后让我们初始化一个简单的代理 (Agents) ：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 初始化代理</span>
+<span class="n">agent</span><span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span>
+    <span class="n">tools</span><span class="p">,</span> <span class="c1">#第二步加载的工具</span>
+    <span class="n">llm</span><span class="p">,</span> <span class="c1">#第一步初始化的模型</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">CHAT_ZERO_SHOT_REACT_DESCRIPTION</span><span class="p">,</span>  <span class="c1">#代理类型</span>
+    <span class="n">handle_parsing_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1">#处理解析错误</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1">#输出中间步骤</span>
+<span class="p">)</span>
+</code></pre></div>
+<ul>
+<li><code>agent</code>: 代理类型。这里使用的是<code>AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION</code>。其中<code>CHAT</code>代表代理模型为针对对话优化的模型；<code>Zero-shot</code> 意味着代理 (Agents) 仅在当前操作上起作用，即它没有记忆；<code>REACT</code>代表针对REACT设计的提示模版。<code>DESCRIPTION</code>根据工具的描述 description 来决定使用哪个工具。(我们不会在本章中讨论 * REACT 框架 ，但您可以将其视为 LLM 可以循环进行 Reasoning 和 Action 步骤的过程。它启用了一个多步骤的过程来识别答案。)</li>
+<li><code>handle_parsing_errors</code>: 是否处理解析错误。当发生解析错误时，将错误信息返回给大模型，让其进行纠正。</li>
+<li><code>verbose</code>: 是否输出中间步骤结果。</li>
+</ul>
+<p>使用代理回答数学问题</p>
+<div class="highlight"><pre><span></span><code><span class="n">agent</span><span class="p">(</span><span class="s2">&quot;计算300的25%&quot;</span><span class="p">)</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+Question: 计算300的25%
+Thought: I can use the calculator tool to calculate 25% of 300.
+Action:
+```json
+{
+  &quot;action&quot;: &quot;Calculator&quot;,
+  &quot;action_input&quot;: &quot;300 * 0.25&quot;
+}
+```
+
+Observation: Answer: 75.0
+Thought:The calculator tool returned the answer 75.0, which is 25% of 300.
+Final Answer: 25% of 300 is 75.0.
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;input&#39;: &#39;计算300的25%&#39;, &#39;output&#39;: &#39;25% of 300 is 75.0.&#39;}
+</code></pre></div>
+<p><strong>上面的过程可以总结为下</strong></p>
+<ol>
+<li>模型对于接下来需要做什么，给出思考</li>
+</ol>
+<p style="font-family:verdana; font-size:12px;color:green"> <strong>思考</strong>：我可以使用计算工具来计算300的25%</p>
+
+<ol>
+<li>模型基于思考采取行动
+    <p style="font-family:verdana; font-size:12px;color:green"> <strong>行动</strong>: 使用计算器（calculator），输入（action_input）300*0.25</p></li>
+<li>
+<p>模型得到观察
+    <p style="font-family:verdana; font-size:12px;color:green"><strong>观察</strong>：答案: 75.0</p></p>
+</li>
+<li>
+<p>基于观察，模型对于接下来需要做什么，给出思考
+    <p style="font-family:verdana; font-size:12px;color:green"> <strong>思考</strong>: 计算工具返回了300的25%，答案为75 </p></p>
+</li>
+<li>
+<p>给出最终答案（Final Answer）
+     <p style="font-family:verdana; font-size:12px;color:green"> <strong>最终答案</strong>: 300的25%等于75。 </p></p>
+</li>
+<li>以字典的形式给出最终答案。</li>
+</ol>
+<p>Tom M. Mitchell的书</p>
+<div class="highlight"><pre><span></span><code><span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;Tom M. Mitchell是一位美国计算机科学家，</span><span class="se">\</span>
+<span class="s2">也是卡内基梅隆大学（CMU）的创始人大学教授。</span><span class="se">\</span>
+<span class="s2">他写了哪本书呢？&quot;</span>
+
+<span class="n">agent</span><span class="p">(</span><span class="n">question</span><span class="p">)</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+Thought: I can use Wikipedia to find information about Tom M. Mitchell and his books.
+Action:
+```json
+{
+  &quot;action&quot;: &quot;Wikipedia&quot;,
+  &quot;action_input&quot;: &quot;Tom M. Mitchell&quot;
+}
+```
+Observation: Page: Tom M. Mitchell
+Summary: Tom Michael Mitchell (born August 9, 1951) is an American computer scientist and the Founders University Professor at Carnegie Mellon University (CMU). He is a founder and former Chair of the Machine Learning Department at CMU. Mitchell is known for his contributions to the advancement of machine learning, artificial intelligence, and cognitive neuroscience and is the author of the textbook Machine Learning. He is a member of the United States National Academy of Engineering since 2010. He is also a Fellow of the American Academy of Arts and Sciences, the American Association for the Advancement of Science and a Fellow and past President of the Association for the Advancement of Artificial Intelligence. In October 2018, Mitchell was appointed as the Interim Dean of the School of Computer Science at Carnegie Mellon.
+
+Page: Tom Mitchell (Australian footballer)
+Summary: Thomas Mitchell (born 31 May 1993) is a professional Australian rules footballer playing for the Collingwood Football Club in the Australian Football League (AFL). He previously played for the Adelaide Crows, Sydney Swans from 2012 to 2016, and the Hawthorn Football Club between 2017 and 2022. Mitchell won the Brownlow Medal as the league&#39;s best and fairest player in 2018 and set the record for the most disposals in a VFL/AFL match, accruing 54 in a game against Collingwood during that season.
+Thought:The book written by Tom M. Mitchell is &quot;Machine Learning&quot;.
+Thought: I have found the answer.
+Final Answer: The book written by Tom M. Mitchell is &quot;Machine Learning&quot;.
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;input&#39;: &#39;Tom M. Mitchell是一位美国计算机科学家，也是卡内基梅隆大学（CMU）的创始人大学教授。他写了哪本书呢？&#39;,
+ &#39;output&#39;: &#39;The book written by Tom M. Mitchell is &quot;Machine Learning&quot;.&#39;}
+</code></pre></div>
+<p>✅ <strong>总结</strong></p>
+<ol>
+<li>
+<p>模型对于接下来需要做什么，给出思考（Thought） 
+ <br />
+<p style="font-family:verdana; font-size:12px;color:green"> <strong>思考</strong>：我应该使用维基百科去搜索。</p>
+</p>
+</li>
+<li>
+<p>模型基于思考采取行动（Action）
+    <p style="font-family:verdana; font-size:12px;color:green"> <strong>行动</strong>: 使用维基百科，输入Tom M. Mitchell</p></p>
+</li>
+<li>
+<p>模型得到观察（Observation）
+    <p style="font-family:verdana; font-size:12px;color:green"><strong>观测</strong>: 页面: Tom M. Mitchell，页面: Tom Mitchell (澳大利亚足球运动员)</p></p>
+</li>
+<li>
+<p>基于观察，模型对于接下来需要做什么，给出思考（Thought）
+    <p style="font-family:verdana; font-size:12px;color:green"> <strong>思考</strong>: Tom M. Mitchell写的书是Machine Learning </p></p>
+</li>
+<li>
+<p>给出最终答案（Final Answer）
+     <p style="font-family:verdana; font-size:12px;color:green"> <strong>最终答案</strong>: Machine Learning </p></p>
+</li>
+<li>以字典的形式给出最终答案。</li>
+</ol>
+<p>值得注意的是，模型每次运行推理的过程可能存在差异，但最终的结果一致。</p>
+<h2 id="langchainpythonrepltool">二、 使用LangChain内置工具PythonREPLTool<a class="headerlink" href="#langchainpythonrepltool" title="Permanent link">⚓︎</a></h2>
+<p>我们创建一个能将顾客名字转换为拼音的 python 代理，步骤与上一部分的一样：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.agents.agent_toolkits</span> <span class="kn">import</span> <span class="n">create_python_agent</span>
+<span class="kn">from</span> <span class="nn">langchain.tools.python.tool</span> <span class="kn">import</span> <span class="n">PythonREPLTool</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">create_python_agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="p">,</span>  <span class="c1">#使用前面一节已经加载的大语言模型</span>
+    <span class="n">tool</span><span class="o">=</span><span class="n">PythonREPLTool</span><span class="p">(),</span> <span class="c1">#使用Python交互式环境工具 REPLTool</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span> <span class="c1">#输出中间步骤</span>
+<span class="p">)</span>
+<span class="n">customer_list</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;小明&quot;</span><span class="p">,</span><span class="s2">&quot;小黄&quot;</span><span class="p">,</span><span class="s2">&quot;小红&quot;</span><span class="p">,</span><span class="s2">&quot;小蓝&quot;</span><span class="p">,</span><span class="s2">&quot;小橘&quot;</span><span class="p">,</span><span class="s2">&quot;小绿&quot;</span><span class="p">,]</span>
+
+<span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;将使用pinyin拼音库这些客户名字转换为拼音，并打印输出列表: </span><span class="si">{</span><span class="n">customer_list</span><span class="si">}</span><span class="s2">。&quot;</span><span class="p">)</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+
+
+Python REPL can execute arbitrary code. Use with caution.
+
+
+I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.
+Action: Python_REPL
+Action Input: import pinyin
+Observation: 
+Thought:I have imported the pinyin library. Now I can use it to convert the names to pinyin.
+Action: Python_REPL
+Action Input: names = [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]
+pinyin_names = [pinyin.get(i, format=&#39;strip&#39;) for i in names]
+print(pinyin_names)
+Observation: [&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]
+
+Thought:I have successfully converted the names to pinyin and printed out the list of converted names.
+Final Answer: [&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]
+
+&gt; Finished chain.
+
+
+
+
+
+&quot;[&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]&quot;
+</code></pre></div>
+<p>在调试（debug）模式下再次运行，我们可以把上面的6步分别对应到下面的具体流程
+1. 模型对于接下来需要做什么，给出思考（Thought）
+    - <p style="font-family:verdana; font-size:12px;color:green"> [chain/start] [1:chain:AgentExecutor] Entering Chain run with input</p>
+    - <p style="font-family:verdana; font-size:12px;color:green"> [chain/start] [1:chain:AgentExecutor &gt; 2:chain:LLMChain] Entering Chain run with input</p>
+    - <p style="font-family:verdana; font-size:12px;color:green"> [llm/start] [1:chain:AgentExecutor &gt; 2:chain:LLMChain &gt; 3:llm:ChatOpenAI] Entering LLM run with input</p>
+    - <p style="font-family:verdana; font-size:12px;color:green"> [llm/end] [1:chain:AgentExecutor &gt; 2:chain:LLMChain &gt; 3:llm:ChatOpenAI] [1.91s] Exiting LLM run with output</p>
+    - <p style="font-family:verdana; font-size:12px;color:green">[chain/end] [1:chain:AgentExecutor &gt; 2:chain:LLMChain] [1.91s] Exiting Chain run with output</p>
+2. 模型基于思考采取行动（Action), 因为使用的工具不同，Action的输出也和之前有所不同，这里输出的为python代码 <code>import pinyin</code>
+    - <p style="font-family:verdana; font-size:12px;color:green"> [tool/start] [1:chain:AgentExecutor &gt; 4:tool:Python REPL] Entering Tool run with input</p>
+    - <p style="font-family:verdana; font-size:12px;color:green"> [tool/end] [1:chain:AgentExecutor &gt; 4:tool:Python_REPL] [1.28ms] Exiting Tool run with output</p>
+3. 模型得到观察（Observation） <br />
+    - <p style="font-family:verdana; font-size:12px;color:green"> [chain/start] [1:chain:AgentExecutor &gt; 5:chain:LLMChain] Entering Chain run with input</p>
+4. 基于观察，模型对于接下来需要做什么，给出思考（Thought） <br />
+    - <p style="font-family:verdana; font-size:12px;color:green"> [llm/start] [1:chain:AgentExecutor &gt; 5:chain:LLMChain &gt; 6:llm:ChatOpenAI] Entering LLM run with input</p>
+    - <p style="font-family:verdana; font-size:12px;color:green"> [llm/end] [1:chain:AgentExecutor &gt; 5:chain:LLMChain &gt; 6:llm:ChatOpenAI] [3.48s] Exiting LLM run with output</p></p>
+<ol>
+<li>给出最终答案（Final Answer） <ul>
+<li><p style="font-family:verdana; font-size:12px;color:green"> [chain/end] [1:chain:AgentExecutor &gt; 5:chain:LLMChain] [3.48s] Exiting Chain run with output</p></li>
+</ul>
+</li>
+<li>返回最终答案。<ul>
+<li><p style="font-family:verdana; font-size:12px;color:green"> [chain/end] [1:chain:AgentExecutor] [19.20s] Exiting Chain run with output</p></li>
+</ul>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">langchain</span>
+<span class="n">langchain</span><span class="o">.</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: </span><span class="si">{</span><span class="n">customer_list</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
+<span class="n">langchain</span><span class="o">.</span><span class="n">debug</span><span class="o">=</span><span class="kc">False</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>[chain/start] [1:chain:AgentExecutor] Entering Chain run with input:
+{
+  &quot;input&quot;: &quot;使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]&quot;
+}
+[chain/start] [1:chain:AgentExecutor &gt; 2:chain:LLMChain] Entering Chain run with input:
+{
+  &quot;input&quot;: &quot;使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]&quot;,
+  &quot;agent_scratchpad&quot;: &quot;&quot;,
+  &quot;stop&quot;: [
+    &quot;\nObservation:&quot;,
+    &quot;\n\tObservation:&quot;
+  ]
+}
+[llm/start] [1:chain:AgentExecutor &gt; 2:chain:LLMChain &gt; 3:llm:ChatOpenAI] Entering LLM run with input:
+{
+  &quot;prompts&quot;: [
+    &quot;Human: You are an agent designed to write and execute python code to answer questions.\nYou have access to a python REPL, which you can use to execute python code.\nIf you get an error, debug your code and try again.\nOnly use the output of your code to answer the question. \nYou might know the answer without running any code, but you should still run the code to get the answer.\nIf it does not seem like you can write code to answer the question, just return \&quot;I don&#39;t know\&quot; as the answer.\n\n\nPython_REPL: A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [Python_REPL]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: 使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\nThought:&quot;
+  ]
+}
+[llm/end] [1:chain:AgentExecutor &gt; 2:chain:LLMChain &gt; 3:llm:ChatOpenAI] [2.32s] Exiting LLM run with output:
+{
+  &quot;generations&quot;: [
+    [
+      {
+        &quot;text&quot;: &quot;I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.\nAction: Python_REPL\nAction Input: import pinyin&quot;,
+        &quot;generation_info&quot;: {
+          &quot;finish_reason&quot;: &quot;stop&quot;
+        },
+        &quot;message&quot;: {
+          &quot;lc&quot;: 1,
+          &quot;type&quot;: &quot;constructor&quot;,
+          &quot;id&quot;: [
+            &quot;langchain&quot;,
+            &quot;schema&quot;,
+            &quot;messages&quot;,
+            &quot;AIMessage&quot;
+          ],
+          &quot;kwargs&quot;: {
+            &quot;content&quot;: &quot;I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.\nAction: Python_REPL\nAction Input: import pinyin&quot;,
+            &quot;additional_kwargs&quot;: {}
+          }
+        }
+      }
+    ]
+  ],
+  &quot;llm_output&quot;: {
+    &quot;token_usage&quot;: {
+      &quot;prompt_tokens&quot;: 320,
+      &quot;completion_tokens&quot;: 39,
+      &quot;total_tokens&quot;: 359
+    },
+    &quot;model_name&quot;: &quot;gpt-3.5-turbo&quot;
+  },
+  &quot;run&quot;: null
+}
+[chain/end] [1:chain:AgentExecutor &gt; 2:chain:LLMChain] [2.33s] Exiting Chain run with output:
+{
+  &quot;text&quot;: &quot;I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.\nAction: Python_REPL\nAction Input: import pinyin&quot;
+}
+[tool/start] [1:chain:AgentExecutor &gt; 4:tool:Python_REPL] Entering Tool run with input:
+&quot;import pinyin&quot;
+[tool/end] [1:chain:AgentExecutor &gt; 4:tool:Python_REPL] [1.5659999999999998ms] Exiting Tool run with output:
+&quot;&quot;
+[chain/start] [1:chain:AgentExecutor &gt; 5:chain:LLMChain] Entering Chain run with input:
+{
+  &quot;input&quot;: &quot;使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]&quot;,
+  &quot;agent_scratchpad&quot;: &quot;I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.\nAction: Python_REPL\nAction Input: import pinyin\nObservation: \nThought:&quot;,
+  &quot;stop&quot;: [
+    &quot;\nObservation:&quot;,
+    &quot;\n\tObservation:&quot;
+  ]
+}
+[llm/start] [1:chain:AgentExecutor &gt; 5:chain:LLMChain &gt; 6:llm:ChatOpenAI] Entering LLM run with input:
+{
+  &quot;prompts&quot;: [
+    &quot;Human: You are an agent designed to write and execute python code to answer questions.\nYou have access to a python REPL, which you can use to execute python code.\nIf you get an error, debug your code and try again.\nOnly use the output of your code to answer the question. \nYou might know the answer without running any code, but you should still run the code to get the answer.\nIf it does not seem like you can write code to answer the question, just return \&quot;I don&#39;t know\&quot; as the answer.\n\n\nPython_REPL: A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [Python_REPL]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: 使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\nThought:I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.\nAction: Python_REPL\nAction Input: import pinyin\nObservation: \nThought:&quot;
+  ]
+}
+[llm/end] [1:chain:AgentExecutor &gt; 5:chain:LLMChain &gt; 6:llm:ChatOpenAI] [4.09s] Exiting LLM run with output:
+{
+  &quot;generations&quot;: [
+    [
+      {
+        &quot;text&quot;: &quot;I have imported the pinyin library. Now I can use it to convert the names to pinyin.\nAction: Python_REPL\nAction Input: names = [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\npinyin_names = [pinyin.get(i, format=&#39;strip&#39;) for i in names]\nprint(pinyin_names)&quot;,
+        &quot;generation_info&quot;: {
+          &quot;finish_reason&quot;: &quot;stop&quot;
+        },
+        &quot;message&quot;: {
+          &quot;lc&quot;: 1,
+          &quot;type&quot;: &quot;constructor&quot;,
+          &quot;id&quot;: [
+            &quot;langchain&quot;,
+            &quot;schema&quot;,
+            &quot;messages&quot;,
+            &quot;AIMessage&quot;
+          ],
+          &quot;kwargs&quot;: {
+            &quot;content&quot;: &quot;I have imported the pinyin library. Now I can use it to convert the names to pinyin.\nAction: Python_REPL\nAction Input: names = [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\npinyin_names = [pinyin.get(i, format=&#39;strip&#39;) for i in names]\nprint(pinyin_names)&quot;,
+            &quot;additional_kwargs&quot;: {}
+          }
+        }
+      }
+    ]
+  ],
+  &quot;llm_output&quot;: {
+    &quot;token_usage&quot;: {
+      &quot;prompt_tokens&quot;: 365,
+      &quot;completion_tokens&quot;: 87,
+      &quot;total_tokens&quot;: 452
+    },
+    &quot;model_name&quot;: &quot;gpt-3.5-turbo&quot;
+  },
+  &quot;run&quot;: null
+}
+[chain/end] [1:chain:AgentExecutor &gt; 5:chain:LLMChain] [4.09s] Exiting Chain run with output:
+{
+  &quot;text&quot;: &quot;I have imported the pinyin library. Now I can use it to convert the names to pinyin.\nAction: Python_REPL\nAction Input: names = [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\npinyin_names = [pinyin.get(i, format=&#39;strip&#39;) for i in names]\nprint(pinyin_names)&quot;
+}
+[tool/start] [1:chain:AgentExecutor &gt; 7:tool:Python_REPL] Entering Tool run with input:
+&quot;names = [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]
+pinyin_names = [pinyin.get(i, format=&#39;strip&#39;) for i in names]
+print(pinyin_names)&quot;
+[tool/end] [1:chain:AgentExecutor &gt; 7:tool:Python_REPL] [0.8809999999999999ms] Exiting Tool run with output:
+&quot;[&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]&quot;
+[chain/start] [1:chain:AgentExecutor &gt; 8:chain:LLMChain] Entering Chain run with input:
+{
+  &quot;input&quot;: &quot;使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]&quot;,
+  &quot;agent_scratchpad&quot;: &quot;I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.\nAction: Python_REPL\nAction Input: import pinyin\nObservation: \nThought:I have imported the pinyin library. Now I can use it to convert the names to pinyin.\nAction: Python_REPL\nAction Input: names = [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\npinyin_names = [pinyin.get(i, format=&#39;strip&#39;) for i in names]\nprint(pinyin_names)\nObservation: [&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]\n\nThought:&quot;,
+  &quot;stop&quot;: [
+    &quot;\nObservation:&quot;,
+    &quot;\n\tObservation:&quot;
+  ]
+}
+[llm/start] [1:chain:AgentExecutor &gt; 8:chain:LLMChain &gt; 9:llm:ChatOpenAI] Entering LLM run with input:
+{
+  &quot;prompts&quot;: [
+    &quot;Human: You are an agent designed to write and execute python code to answer questions.\nYou have access to a python REPL, which you can use to execute python code.\nIf you get an error, debug your code and try again.\nOnly use the output of your code to answer the question. \nYou might know the answer without running any code, but you should still run the code to get the answer.\nIf it does not seem like you can write code to answer the question, just return \&quot;I don&#39;t know\&quot; as the answer.\n\n\nPython_REPL: A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [Python_REPL]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: 使用pinyin拼音库将这些客户名字转换为拼音，并打印输出列表: [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\nThought:I need to use the pinyin library to convert the names to pinyin. I can then print out the list of converted names.\nAction: Python_REPL\nAction Input: import pinyin\nObservation: \nThought:I have imported the pinyin library. Now I can use it to convert the names to pinyin.\nAction: Python_REPL\nAction Input: names = [&#39;小明&#39;, &#39;小黄&#39;, &#39;小红&#39;, &#39;小蓝&#39;, &#39;小橘&#39;, &#39;小绿&#39;]\npinyin_names = [pinyin.get(i, format=&#39;strip&#39;) for i in names]\nprint(pinyin_names)\nObservation: [&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]\n\nThought:&quot;
+  ]
+}
+[llm/end] [1:chain:AgentExecutor &gt; 8:chain:LLMChain &gt; 9:llm:ChatOpenAI] [2.05s] Exiting LLM run with output:
+{
+  &quot;generations&quot;: [
+    [
+      {
+        &quot;text&quot;: &quot;I have successfully converted the names to pinyin and printed out the list of converted names.\nFinal Answer: [&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]&quot;,
+        &quot;generation_info&quot;: {
+          &quot;finish_reason&quot;: &quot;stop&quot;
+        },
+        &quot;message&quot;: {
+          &quot;lc&quot;: 1,
+          &quot;type&quot;: &quot;constructor&quot;,
+          &quot;id&quot;: [
+            &quot;langchain&quot;,
+            &quot;schema&quot;,
+            &quot;messages&quot;,
+            &quot;AIMessage&quot;
+          ],
+          &quot;kwargs&quot;: {
+            &quot;content&quot;: &quot;I have successfully converted the names to pinyin and printed out the list of converted names.\nFinal Answer: [&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]&quot;,
+            &quot;additional_kwargs&quot;: {}
+          }
+        }
+      }
+    ]
+  ],
+  &quot;llm_output&quot;: {
+    &quot;token_usage&quot;: {
+      &quot;prompt_tokens&quot;: 483,
+      &quot;completion_tokens&quot;: 48,
+      &quot;total_tokens&quot;: 531
+    },
+    &quot;model_name&quot;: &quot;gpt-3.5-turbo&quot;
+  },
+  &quot;run&quot;: null
+}
+[chain/end] [1:chain:AgentExecutor &gt; 8:chain:LLMChain] [2.05s] Exiting Chain run with output:
+{
+  &quot;text&quot;: &quot;I have successfully converted the names to pinyin and printed out the list of converted names.\nFinal Answer: [&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]&quot;
+}
+[chain/end] [1:chain:AgentExecutor] [8.47s] Exiting Chain run with output:
+{
+  &quot;output&quot;: &quot;[&#39;xiaoming&#39;, &#39;xiaohuang&#39;, &#39;xiaohong&#39;, &#39;xiaolan&#39;, &#39;xiaoju&#39;, &#39;xiaolv&#39;]&quot;
+}
+</code></pre></div>
+<h2 id="_2">三、 定义自己的工具并在代理中使用<a class="headerlink" href="#_2" title="Permanent link">⚓︎</a></h2>
+<p>在本节，我们将<strong>创建和使用自定义时间工具</strong>。<strong>LangChian tool 函数装饰器可以应用用于任何函数，将函数转化为LangChain 工具，使其成为代理可调用的工具</strong>。我们需要给函数加上非常详细的文档字符串, 使得代理知道在什么情况下、如何使用该函数/工具。比如下面的函数<code>time</code>,我们加上了详细的文档字符串。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 导入tool函数装饰器</span>
+<span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">tool</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    返回今天的日期，用于任何需要知道今天日期的问题。\</span>
+<span class="sd">    输入应该总是一个空字符串，\</span>
+<span class="sd">    这个函数将总是返回今天的日期，任何日期计算应该在这个函数之外进行。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+
+<span class="c1"># 初始化代理</span>
+<span class="n">agent</span><span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="c1">#将刚刚创建的时间工具加入代理</span>
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span><span class="p">,</span> <span class="c1">#初始化的模型</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">CHAT_ZERO_SHOT_REACT_DESCRIPTION</span><span class="p">,</span>  <span class="c1">#代理类型</span>
+    <span class="n">handle_parsing_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1">#处理解析错误</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1">#输出中间步骤</span>
+<span class="p">)</span>
+
+<span class="c1"># 使用代理询问今天的日期. </span>
+<span class="c1"># 注: 代理有时候可能会出错（该功能正在开发中）。如果出现错误，请尝试再次运行它。</span>
+<span class="n">agent</span><span class="p">(</span><span class="s2">&quot;今天的日期是？&quot;</span><span class="p">)</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+根据提供的工具，我们可以使用`time`函数来获取今天的日期。
+
+Thought: 使用`time`函数来获取今天的日期。
+
+Action:
+```
+{
+  &quot;action&quot;: &quot;time&quot;,
+  &quot;action_input&quot;: &quot;&quot;
+}
+```
+
+
+Observation: 2023-08-09
+Thought:我现在知道了最终答案。
+Final Answer: 今天的日期是2023-08-09。
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;input&#39;: &#39;今天的日期是？&#39;, &#39;output&#39;: &#39;今天的日期是2023-08-09。&#39;}
+</code></pre></div>
+<p><strong>上面的过程可以总结为下</strong></p>
+<ol>
+<li>
+<p>模型对于接下来需要做什么，给出思考（Thought） 
+ <br />
+<p style="font-family:verdana; font-size:12px;color:green"> <strong>思考</strong>：我需要使用 time 工具来获取今天的日期</p>
+</p>
+</li>
+<li>
+<p>模型基于思考采取行动（Action), 因为使用的工具不同，Action的输出也和之前有所不同，这里输出的为python代码
+    <p style="font-family:verdana; font-size:12px;color:green"> <strong>行动</strong>: 使用time工具，输入为空字符串</p></p>
+</li>
+<li>
+<p>模型得到观察（Observation）
+    <p style="font-family:verdana; font-size:12px;color:green"><strong>观测</strong>: 2023-07-04</p></p>
+</li>
+<li>
+<p>基于观察，模型对于接下来需要做什么，给出思考（Thought）
+    <p style="font-family:verdana; font-size:12px;color:green"> <strong>思考</strong>: 我已成功使用 time 工具检索到了今天的日期</p></p>
+</li>
+<li>
+<p>给出最终答案（Final Answer）
+     <p style="font-family:verdana; font-size:12px;color:green"> <strong>最终答案</strong>: 今天的日期是2023-08-09.</p></p>
+</li>
+<li>返回最终答案。</li>
+</ol>
+<h2 id="_3">四、英文版<a class="headerlink" href="#_3" title="Permanent link">⚓︎</a></h2>
+<p><strong>1. 使用LangChain内置工具llm-math和wikipedia</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">load_tools</span><span class="p">,</span> <span class="n">initialize_agent</span>
+<span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">AgentType</span>
+<span class="kn">from</span> <span class="nn">langchain.python</span> <span class="kn">import</span> <span class="n">PythonREPL</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="n">load_tools</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">&quot;llm-math&quot;</span><span class="p">,</span><span class="s2">&quot;wikipedia&quot;</span><span class="p">],</span> 
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span> 
+<span class="p">)</span>
+
+
+<span class="n">agent</span><span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span>
+    <span class="n">tools</span><span class="p">,</span>  
+    <span class="n">llm</span><span class="p">,</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">CHAT_ZERO_SHOT_REACT_DESCRIPTION</span><span class="p">,</span>
+    <span class="n">handle_parsing_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">agent</span><span class="p">(</span><span class="s2">&quot;What is the 25</span><span class="si">% o</span><span class="s2">f 300?&quot;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+I can use the calculator tool to find the answer to this question.
+
+Action:
+```json
+{
+  &quot;action&quot;: &quot;Calculator&quot;,
+  &quot;action_input&quot;: &quot;25% of 300&quot;
+}
+```
+Observation: Answer: 75.0
+Thought:The answer is 75.0.
+Final Answer: 75.0
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;input&#39;: &#39;What is the 25% of 300?&#39;, &#39;output&#39;: &#39;75.0&#39;}
+</code></pre></div>
+<p><strong>Tom M. Mitchell的书</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">load_tools</span><span class="p">,</span> <span class="n">initialize_agent</span>
+<span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">AgentType</span>
+<span class="kn">from</span> <span class="nn">langchain.python</span> <span class="kn">import</span> <span class="n">PythonREPL</span>
+<span class="kn">from</span> <span class="nn">langchain.chat_models</span> <span class="kn">import</span> <span class="n">ChatOpenAI</span>
+
+<span class="n">llm</span> <span class="o">=</span> <span class="n">ChatOpenAI</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="n">load_tools</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">&quot;llm-math&quot;</span><span class="p">,</span><span class="s2">&quot;wikipedia&quot;</span><span class="p">],</span> 
+    <span class="n">llm</span><span class="o">=</span><span class="n">llm</span> 
+<span class="p">)</span>
+
+
+<span class="n">agent</span><span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span>
+    <span class="n">tools</span><span class="p">,</span>  
+    <span class="n">llm</span><span class="p">,</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">CHAT_ZERO_SHOT_REACT_DESCRIPTION</span><span class="p">,</span>
+    <span class="n">handle_parsing_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">question</span> <span class="o">=</span> <span class="s2">&quot;Tom M. Mitchell is an American computer scientist </span><span class="se">\</span>
+<span class="s2">and the Founders University Professor at Carnegie Mellon University (CMU)</span><span class="se">\</span>
+<span class="s2">what book did he write?&quot;</span>
+<span class="n">agent</span><span class="p">(</span><span class="n">question</span><span class="p">)</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+Thought: I can use Wikipedia to find out what book Tom M. Mitchell wrote.
+Action:
+```json
+{
+  &quot;action&quot;: &quot;Wikipedia&quot;,
+  &quot;action_input&quot;: &quot;Tom M. Mitchell&quot;
+}
+```
+Observation: Page: Tom M. Mitchell
+Summary: Tom Michael Mitchell (born August 9, 1951) is an American computer scientist and the Founders University Professor at Carnegie Mellon University (CMU). He is a founder and former Chair of the Machine Learning Department at CMU. Mitchell is known for his contributions to the advancement of machine learning, artificial intelligence, and cognitive neuroscience and is the author of the textbook Machine Learning. He is a member of the United States National Academy of Engineering since 2010. He is also a Fellow of the American Academy of Arts and Sciences, the American Association for the Advancement of Science and a Fellow and past President of the Association for the Advancement of Artificial Intelligence. In October 2018, Mitchell was appointed as the Interim Dean of the School of Computer Science at Carnegie Mellon.
+
+Page: Tom Mitchell (Australian footballer)
+Summary: Thomas Mitchell (born 31 May 1993) is a professional Australian rules footballer playing for the Collingwood Football Club in the Australian Football League (AFL). He previously played for the Adelaide Crows, Sydney Swans from 2012 to 2016, and the Hawthorn Football Club between 2017 and 2022. Mitchell won the Brownlow Medal as the league&#39;s best and fairest player in 2018 and set the record for the most disposals in a VFL/AFL match, accruing 54 in a game against Collingwood during that season.
+Thought:The book that Tom M. Mitchell wrote is &quot;Machine Learning&quot;.
+Final Answer: Machine Learning
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;input&#39;: &#39;Tom M. Mitchell is an American computer scientist and the Founders University Professor at Carnegie Mellon University (CMU)what book did he write?&#39;,
+ &#39;output&#39;: &#39;Machine Learning&#39;}
+</code></pre></div>
+<p><strong>2. 使用LangChain内置工具PythonREPLTool</strong></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">langchain.agents.agent_toolkits</span> <span class="kn">import</span> <span class="n">create_python_agent</span>
+<span class="kn">from</span> <span class="nn">langchain.tools.python.tool</span> <span class="kn">import</span> <span class="n">PythonREPLTool</span>
+
+<span class="n">agent</span> <span class="o">=</span> <span class="n">create_python_agent</span><span class="p">(</span>
+    <span class="n">llm</span><span class="p">,</span>  <span class="c1">#使用前面一节已经加载的大语言模型</span>
+    <span class="n">tool</span><span class="o">=</span><span class="n">PythonREPLTool</span><span class="p">(),</span> <span class="c1">#使用Python交互式环境工具（REPLTool）</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span> <span class="c1">#输出中间步骤</span>
+<span class="p">)</span>
+
+<span class="n">customer_list</span> <span class="o">=</span> <span class="p">[[</span><span class="s2">&quot;Harrison&quot;</span><span class="p">,</span> <span class="s2">&quot;Chase&quot;</span><span class="p">],</span> 
+                 <span class="p">[</span><span class="s2">&quot;Lang&quot;</span><span class="p">,</span> <span class="s2">&quot;Chain&quot;</span><span class="p">],</span>
+                 <span class="p">[</span><span class="s2">&quot;Dolly&quot;</span><span class="p">,</span> <span class="s2">&quot;Too&quot;</span><span class="p">],</span>
+                 <span class="p">[</span><span class="s2">&quot;Elle&quot;</span><span class="p">,</span> <span class="s2">&quot;Elem&quot;</span><span class="p">],</span> 
+                 <span class="p">[</span><span class="s2">&quot;Geoff&quot;</span><span class="p">,</span><span class="s2">&quot;Fusion&quot;</span><span class="p">],</span> 
+                 <span class="p">[</span><span class="s2">&quot;Trance&quot;</span><span class="p">,</span><span class="s2">&quot;Former&quot;</span><span class="p">],</span>
+                 <span class="p">[</span><span class="s2">&quot;Jen&quot;</span><span class="p">,</span><span class="s2">&quot;Ayai&quot;</span><span class="p">]</span>
+                <span class="p">]</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;Sort these customers by </span><span class="se">\</span>
+<span class="s2">last name and then first name </span><span class="se">\</span>
+<span class="s2">and print the output: </span><span class="si">{</span><span class="n">customer_list</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+I can use the `sorted()` function to sort the list of customers. I will need to provide a key function that specifies the sorting order based on last name and then first name.
+Action: Python_REPL
+Action Input: sorted([[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]], key=lambda x: (x[1], x[0]))
+Observation: 
+Thought:The customers have been sorted by last name and then first name.
+Final Answer: [[&#39;Jen&#39;, &#39;Ayai&#39;], [&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Dolly&#39;, &#39;Too&#39;]]
+
+&gt; Finished chain.
+
+
+
+
+
+&quot;[[&#39;Jen&#39;, &#39;Ayai&#39;], [&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Dolly&#39;, &#39;Too&#39;]]&quot;
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">langchain</span>
+<span class="n">langchain</span><span class="o">.</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span>
+<span class="n">agent</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&quot;&quot;Sort these customers by </span><span class="se">\</span>
+<span class="s2">last name and then first name </span><span class="se">\</span>
+<span class="s2">and print the output: </span><span class="si">{</span><span class="n">customer_list</span><span class="si">}</span><span class="s2">&quot;&quot;&quot;</span><span class="p">)</span> 
+<span class="n">langchain</span><span class="o">.</span><span class="n">debug</span><span class="o">=</span><span class="kc">False</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>[chain/start] [1:chain:AgentExecutor] Entering Chain run with input:
+{
+  &quot;input&quot;: &quot;Sort these customers by last name and then first name and print the output: [[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]]&quot;
+}
+[chain/start] [1:chain:AgentExecutor &gt; 2:chain:LLMChain] Entering Chain run with input:
+{
+  &quot;input&quot;: &quot;Sort these customers by last name and then first name and print the output: [[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]]&quot;,
+  &quot;agent_scratchpad&quot;: &quot;&quot;,
+  &quot;stop&quot;: [
+    &quot;\nObservation:&quot;,
+    &quot;\n\tObservation:&quot;
+  ]
+}
+[llm/start] [1:chain:AgentExecutor &gt; 2:chain:LLMChain &gt; 3:llm:ChatOpenAI] Entering LLM run with input:
+{
+  &quot;prompts&quot;: [
+    &quot;Human: You are an agent designed to write and execute python code to answer questions.\nYou have access to a python REPL, which you can use to execute python code.\nIf you get an error, debug your code and try again.\nOnly use the output of your code to answer the question. \nYou might know the answer without running any code, but you should still run the code to get the answer.\nIf it does not seem like you can write code to answer the question, just return \&quot;I don&#39;t know\&quot; as the answer.\n\n\nPython_REPL: A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [Python_REPL]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: Sort these customers by last name and then first name and print the output: [[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]]\nThought:&quot;
+  ]
+}
+[llm/end] [1:chain:AgentExecutor &gt; 2:chain:LLMChain &gt; 3:llm:ChatOpenAI] [4.59s] Exiting LLM run with output:
+{
+  &quot;generations&quot;: [
+    [
+      {
+        &quot;text&quot;: &quot;I can use the `sorted()` function to sort the list of customers. I will need to provide a key function that specifies the sorting order based on last name and then first name.\nAction: Python_REPL\nAction Input: sorted([[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]], key=lambda x: (x[1], x[0]))&quot;,
+        &quot;generation_info&quot;: {
+          &quot;finish_reason&quot;: &quot;stop&quot;
+        },
+        &quot;message&quot;: {
+          &quot;lc&quot;: 1,
+          &quot;type&quot;: &quot;constructor&quot;,
+          &quot;id&quot;: [
+            &quot;langchain&quot;,
+            &quot;schema&quot;,
+            &quot;messages&quot;,
+            &quot;AIMessage&quot;
+          ],
+          &quot;kwargs&quot;: {
+            &quot;content&quot;: &quot;I can use the `sorted()` function to sort the list of customers. I will need to provide a key function that specifies the sorting order based on last name and then first name.\nAction: Python_REPL\nAction Input: sorted([[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]], key=lambda x: (x[1], x[0]))&quot;,
+            &quot;additional_kwargs&quot;: {}
+          }
+        }
+      }
+    ]
+  ],
+  &quot;llm_output&quot;: {
+    &quot;token_usage&quot;: {
+      &quot;prompt_tokens&quot;: 328,
+      &quot;completion_tokens&quot;: 112,
+      &quot;total_tokens&quot;: 440
+    },
+    &quot;model_name&quot;: &quot;gpt-3.5-turbo&quot;
+  },
+  &quot;run&quot;: null
+}
+[chain/end] [1:chain:AgentExecutor &gt; 2:chain:LLMChain] [4.59s] Exiting Chain run with output:
+{
+  &quot;text&quot;: &quot;I can use the `sorted()` function to sort the list of customers. I will need to provide a key function that specifies the sorting order based on last name and then first name.\nAction: Python_REPL\nAction Input: sorted([[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]], key=lambda x: (x[1], x[0]))&quot;
+}
+[tool/start] [1:chain:AgentExecutor &gt; 4:tool:Python_REPL] Entering Tool run with input:
+&quot;sorted([[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]], key=lambda x: (x[1], x[0]))&quot;
+[tool/end] [1:chain:AgentExecutor &gt; 4:tool:Python_REPL] [1.35ms] Exiting Tool run with output:
+&quot;&quot;
+[chain/start] [1:chain:AgentExecutor &gt; 5:chain:LLMChain] Entering Chain run with input:
+{
+  &quot;input&quot;: &quot;Sort these customers by last name and then first name and print the output: [[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]]&quot;,
+  &quot;agent_scratchpad&quot;: &quot;I can use the `sorted()` function to sort the list of customers. I will need to provide a key function that specifies the sorting order based on last name and then first name.\nAction: Python_REPL\nAction Input: sorted([[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]], key=lambda x: (x[1], x[0]))\nObservation: \nThought:&quot;,
+  &quot;stop&quot;: [
+    &quot;\nObservation:&quot;,
+    &quot;\n\tObservation:&quot;
+  ]
+}
+[llm/start] [1:chain:AgentExecutor &gt; 5:chain:LLMChain &gt; 6:llm:ChatOpenAI] Entering LLM run with input:
+{
+  &quot;prompts&quot;: [
+    &quot;Human: You are an agent designed to write and execute python code to answer questions.\nYou have access to a python REPL, which you can use to execute python code.\nIf you get an error, debug your code and try again.\nOnly use the output of your code to answer the question. \nYou might know the answer without running any code, but you should still run the code to get the answer.\nIf it does not seem like you can write code to answer the question, just return \&quot;I don&#39;t know\&quot; as the answer.\n\n\nPython_REPL: A Python shell. Use this to execute python commands. Input should be a valid python command. If you want to see the output of a value, you should print it out with `print(...)`.\n\nUse the following format:\n\nQuestion: the input question you must answer\nThought: you should always think about what to do\nAction: the action to take, should be one of [Python_REPL]\nAction Input: the input to the action\nObservation: the result of the action\n... (this Thought/Action/Action Input/Observation can repeat N times)\nThought: I now know the final answer\nFinal Answer: the final answer to the original input question\n\nBegin!\n\nQuestion: Sort these customers by last name and then first name and print the output: [[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]]\nThought:I can use the `sorted()` function to sort the list of customers. I will need to provide a key function that specifies the sorting order based on last name and then first name.\nAction: Python_REPL\nAction Input: sorted([[&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Dolly&#39;, &#39;Too&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Jen&#39;, &#39;Ayai&#39;]], key=lambda x: (x[1], x[0]))\nObservation: \nThought:&quot;
+  ]
+}
+[llm/end] [1:chain:AgentExecutor &gt; 5:chain:LLMChain &gt; 6:llm:ChatOpenAI] [3.89s] Exiting LLM run with output:
+{
+  &quot;generations&quot;: [
+    [
+      {
+        &quot;text&quot;: &quot;The customers have been sorted by last name and then first name.\nFinal Answer: [[&#39;Jen&#39;, &#39;Ayai&#39;], [&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Dolly&#39;, &#39;Too&#39;]]&quot;,
+        &quot;generation_info&quot;: {
+          &quot;finish_reason&quot;: &quot;stop&quot;
+        },
+        &quot;message&quot;: {
+          &quot;lc&quot;: 1,
+          &quot;type&quot;: &quot;constructor&quot;,
+          &quot;id&quot;: [
+            &quot;langchain&quot;,
+            &quot;schema&quot;,
+            &quot;messages&quot;,
+            &quot;AIMessage&quot;
+          ],
+          &quot;kwargs&quot;: {
+            &quot;content&quot;: &quot;The customers have been sorted by last name and then first name.\nFinal Answer: [[&#39;Jen&#39;, &#39;Ayai&#39;], [&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Dolly&#39;, &#39;Too&#39;]]&quot;,
+            &quot;additional_kwargs&quot;: {}
+          }
+        }
+      }
+    ]
+  ],
+  &quot;llm_output&quot;: {
+    &quot;token_usage&quot;: {
+      &quot;prompt_tokens&quot;: 445,
+      &quot;completion_tokens&quot;: 67,
+      &quot;total_tokens&quot;: 512
+    },
+    &quot;model_name&quot;: &quot;gpt-3.5-turbo&quot;
+  },
+  &quot;run&quot;: null
+}
+[chain/end] [1:chain:AgentExecutor &gt; 5:chain:LLMChain] [3.89s] Exiting Chain run with output:
+{
+  &quot;text&quot;: &quot;The customers have been sorted by last name and then first name.\nFinal Answer: [[&#39;Jen&#39;, &#39;Ayai&#39;], [&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Dolly&#39;, &#39;Too&#39;]]&quot;
+}
+[chain/end] [1:chain:AgentExecutor] [8.49s] Exiting Chain run with output:
+{
+  &quot;output&quot;: &quot;[[&#39;Jen&#39;, &#39;Ayai&#39;], [&#39;Harrison&#39;, &#39;Chase&#39;], [&#39;Lang&#39;, &#39;Chain&#39;], [&#39;Elle&#39;, &#39;Elem&#39;], [&#39;Geoff&#39;, &#39;Fusion&#39;], [&#39;Trance&#39;, &#39;Former&#39;], [&#39;Dolly&#39;, &#39;Too&#39;]]&quot;
+}
+</code></pre></div>
+<p><strong>3. 定义自己的工具并在代理中使用</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 导入tool函数装饰器</span>
+<span class="kn">from</span> <span class="nn">langchain.agents</span> <span class="kn">import</span> <span class="n">tool</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span>
+
+<span class="nd">@tool</span>
+<span class="k">def</span> <span class="nf">time</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns todays date, use this for any \</span>
+<span class="sd">    questions related to knowing todays date. \</span>
+<span class="sd">    The input should always be an empty string, \</span>
+<span class="sd">    and this function will always return todays \</span>
+<span class="sd">    date - any date mathmatics should occur \</span>
+<span class="sd">    outside this function.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">())</span>
+
+<span class="n">agent</span><span class="o">=</span> <span class="n">initialize_agent</span><span class="p">(</span>
+    <span class="n">tools</span> <span class="o">+</span> <span class="p">[</span><span class="n">time</span><span class="p">],</span> <span class="c1">#将刚刚创建的时间工具加入到已有的工具中</span>
+    <span class="n">llm</span><span class="p">,</span> <span class="c1">#初始化的模型</span>
+    <span class="n">agent</span><span class="o">=</span><span class="n">AgentType</span><span class="o">.</span><span class="n">CHAT_ZERO_SHOT_REACT_DESCRIPTION</span><span class="p">,</span>  <span class="c1">#代理类型</span>
+    <span class="n">handle_parsing_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1">#处理解析错误</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="kc">True</span> <span class="c1">#输出中间步骤</span>
+<span class="p">)</span>
+
+<span class="n">agent</span><span class="p">(</span><span class="s2">&quot;whats the date today?&quot;</span><span class="p">)</span> 
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>&gt; Entering new AgentExecutor chain...
+Question: What&#39;s the date today?
+Thought: I can use the `time` tool to get the current date.
+Action:
+```
+{
+  &quot;action&quot;: &quot;time&quot;,
+  &quot;action_input&quot;: &quot;&quot;
+}
+```
+Observation: 2023-08-09
+Thought:I now know the final answer.
+Final Answer: The date today is 2023-08-09.
+
+&gt; Finished chain.
+
+
+
+
+
+{&#39;input&#39;: &#39;whats the date today?&#39;, &#39;output&#39;: &#39;The date today is 2023-08-09.&#39;}
+</code></pre></div>
+
+  <hr>
+<div class="md-source-file">
+  <small>
+    
+      最后更新:
+      <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+        <br>
+        创建日期:
+        <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date">November 25, 2023</span>
+      
+    
+  </small>
+</div>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="页脚" >
+        
+          
+          <a href="../6.%20%E8%AF%84%E4%BC%B0%20Evaluation/" class="md-footer__link md-footer__link--prev" aria-label="上一页: 第六章 评估">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              <div class="md-ellipsis">
+                第六章 评估
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../8.%20%E6%80%BB%E7%BB%93%20Conclusion/" class="md-footer__link md-footer__link--next" aria-label="下一页: 第八章 总结">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              <div class="md-ellipsis">
+                第八章 总结
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Ean Yang
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/YQisme" target="_blank" rel="noopener" title="github主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://space.bilibili.com/244185393?spm_id_from=333.788.0.0" target="_blank" rel="noopener" title="b站主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M488.6 104.1c16.7 18.1 24.4 39.7 23.3 65.7v202.4c-.4 26.4-9.2 48.1-26.5 65.1-17.2 17-39.1 25.9-65.5 26.7H92.02c-26.45-.8-48.21-9.8-65.28-27.2C9.682 419.4.767 396.5 0 368.2V169.8c.767-26 9.682-47.6 26.74-65.7C43.81 87.75 65.57 78.77 92.02 78h29.38L96.05 52.19c-5.75-5.73-8.63-13-8.63-21.79 0-8.8 2.88-16.06 8.63-21.797C101.8 2.868 109.1 0 117.9 0s16.1 2.868 21.9 8.603L213.1 78h88l74.5-69.397C381.7 2.868 389.2 0 398 0c8.8 0 16.1 2.868 21.9 8.603 5.7 5.737 8.6 12.997 8.6 21.797 0 8.79-2.9 16.06-8.6 21.79L394.6 78h29.3c26.4.77 48 9.75 64.7 26.1zm-38.8 69.7c-.4-9.6-3.7-17.4-10.7-23.5-5.2-6.1-14-9.4-22.7-9.8H96.05c-9.59.4-17.45 3.7-23.58 9.8-6.14 6.1-9.4 13.9-9.78 23.5v194.4c0 9.2 3.26 17 9.78 23.5s14.38 9.8 23.58 9.8H416.4c9.2 0 17-3.3 23.3-9.8 6.3-6.5 9.7-14.3 10.1-23.5V173.8zm-264.3 42.7c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.2 6.3-14 9.5-23.6 9.5-9.6 0-17.5-3.2-23.6-9.5-6.1-6.3-9.4-14-9.8-23.2v-33.3c.4-9.1 3.8-16.9 10.1-23.2 6.3-6.3 13.2-9.6 23.3-10 9.2.4 17 3.7 23.3 10zm191.5 0c6.3 6.3 9.7 14.1 10.1 23.2V273c-.4 9.2-3.7 16.9-9.8 23.2-6.1 6.3-14 9.5-23.6 9.5-9.6 0-17.4-3.2-23.6-9.5-7-6.3-9.4-14-9.7-23.2v-33.3c.3-9.1 3.7-16.9 10-23.2 6.3-6.3 14.1-9.6 23.3-10 9.2.4 17 3.7 23.3 10z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+    <a href="https://eanyang7.com" target="_blank" rel="noopener" title="个人主页" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M112 48a48 48 0 1 1 96 0 48 48 0 1 1-96 0zm40 304v128c0 17.7-14.3 32-32 32s-32-14.3-32-32V256.9l-28.6 47.6c-9.1 15.1-28.8 20-43.9 10.9s-20-28.8-10.9-43.9l58.3-97c17.4-28.9 48.6-46.6 82.3-46.6h29.7c33.7 0 64.9 17.7 82.3 46.6l58.3 97c9.1 15.1 4.2 34.8-10.9 43.9s-34.8 4.2-43.9-10.9L232 256.9V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V352h-16z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.instant", "navigation.instant.progress", "navigation.tracking", "navigation.prune", "navigation.top", "toc.follow", "header.autohide", "navigation.footer", "search.suggest", "search.highlight", "search.share", "content.action.edit", "content.action.view", "content.code.copy"], "search": "../../assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.6c14ae12.min.js"></script>
+      
+    
+  </body>
+</html>
